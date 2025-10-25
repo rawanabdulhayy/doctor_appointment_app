@@ -1,3 +1,4 @@
+import 'package:doctor_appointment_app/presentation/screens/login_screen.dart';
 import 'package:flutter/material.dart';
 
 class OnboardingScreen extends StatelessWidget {
@@ -25,6 +26,7 @@ class OnboardingScreen extends StatelessWidget {
           // Foreground Content: Main content
           SafeArea(
             // Alternative: Manual Padding with MediaQuery.of(context).padding.top (harder)
+            // Column inside a stack is okay.
             child: Column(
               children: [
                 // Top Foreground: Logo bar.
@@ -53,6 +55,7 @@ class OnboardingScreen extends StatelessWidget {
                   child: Stack(
                     children: [
                       // Doctor image
+
                       // Positioned.fill = shortcut for Positioned(top: 0, left: 0, right: 0, bottom: 0)
                       // Alternative: Container with width: double.infinity, height: double.infinity (more verbose)
                       Positioned.fill(
@@ -132,7 +135,14 @@ class OnboardingScreen extends StatelessWidget {
                         height: 56,
                         child: ElevatedButton(
                           onPressed: () {
-                            // Navigate to next screen
+                            Navigator.pushReplacement(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) {
+                                  return const LoginScreen();
+                                },
+                              ),
+                            );
                           },
                           style: ElevatedButton.styleFrom(
                             backgroundColor: const Color(0xFF247CFF),
