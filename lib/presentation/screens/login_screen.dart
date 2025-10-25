@@ -1,6 +1,8 @@
 import 'package:doctor_appointment_app/core/app_colors/app_colors.dart';
 import 'package:doctor_appointment_app/presentation/screens/sign_up.dart';
 import 'package:flutter/material.dart';
+import '../../core/helper_widgets/custom_snackbar.dart';
+import '../../core/utils/validators.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -12,7 +14,6 @@ class LoginScreen extends StatefulWidget {
 class _LoginScreenState extends State<LoginScreen> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
-
   final formKey = GlobalKey<FormState>();
   bool _obscurePassword = true;
   bool _rememberMe = false;
@@ -33,7 +34,10 @@ class _LoginScreenState extends State<LoginScreen> {
       resizeToAvoidBottomInset: false,
       backgroundColor: AppColors.backgroundWhite,
       body: Padding(
-        padding: EdgeInsets.symmetric(vertical: height * 1/8, horizontal: width * 0.08),
+        padding: EdgeInsets.symmetric(
+          vertical: height * 1 / 8,
+          horizontal: width * 0.08,
+        ),
         child: SingleChildScrollView(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -90,15 +94,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           borderSide: BorderSide(width: 1.5, color: Colors.red),
                         ),
                       ),
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Please enter your email';
-                        }
-                        if (!value.contains('@')) {
-                          return 'Enter a valid email';
-                        }
-                        return null;
-                      },
+                      validator: Validators.validateEmail,
                     ),
                     const SizedBox(height: 20),
                     TextFormField(
@@ -143,15 +139,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           },
                         ),
                       ),
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Please enter your password';
-                        }
-                        if (value.length < 6) {
-                          return 'Password must be at least 6 characters';
-                        }
-                        return null;
-                      },
+                      validator: Validators.validatePassword,
                     ),
                     const SizedBox(height: 15),
                     Row(
@@ -193,7 +181,19 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
                         TextButton(
                           onPressed: () {
-                            print('Forgot password tapped!');
+                            if (formKey.currentState!.validate()) {
+                              SnackBarHelper.show(
+                                context,
+                                'New password has been sent to your mail!',
+                                type: SnackBarType.success,
+                              );
+                            } else {
+                              SnackBarHelper.show(
+                                context,
+                                'Please fix the errors in red.',
+                                type: SnackBarType.error,
+                              );
+                            }
                           },
                           child: Text(
                             'Forgot Password?',
@@ -217,9 +217,18 @@ class _LoginScreenState extends State<LoginScreen> {
                         foregroundColor: AppColors.backgroundWhite,
                       ),
                       onPressed: () {
-                        //todo: validators and learnt lessons.
                         if (formKey.currentState!.validate()) {
-                          print('Form is valid!');
+                          SnackBarHelper.show(
+                            context,
+                            'Login successful!',
+                            type: SnackBarType.success,
+                          );
+                        } else {
+                          SnackBarHelper.show(
+                            context,
+                            'Please fix the errors in red.',
+                            type: SnackBarType.error,
+                          );
                         }
                       },
                       child: Text(
@@ -348,22 +357,30 @@ class _LoginScreenState extends State<LoginScreen> {
 
               Center(
                 child: GestureDetector(
-                  onTap: (){
-                    Navigator.push(context, MaterialPageRoute(builder: (_){
-                      return const SignUp();
-                    }));
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) {
+                          return const SignUp();
+                        },
+                      ),
+                    );
                   },
                   child: Text.rich(
-                    TextSpan(text: 'Don\'t have an account yet? ', children: [
-                      TextSpan(
-                        text: "Sign Up",
-                        style: TextStyle(
-                          color: AppColors.boldPrimaryColor,
-                          fontWeight: FontWeight.w400,
-                          fontSize: 11,
+                    TextSpan(
+                      text: 'Don\'t have an account yet? ',
+                      children: [
+                        TextSpan(
+                          text: "Sign Up",
+                          style: TextStyle(
+                            color: AppColors.boldPrimaryColor,
+                            fontWeight: FontWeight.w400,
+                            fontSize: 11,
+                          ),
                         ),
-                      ),
-                    ],),
+                      ],
+                    ),
                     style: TextStyle(
                       color: Colors.black,
                       fontWeight: FontWeight.w400,
