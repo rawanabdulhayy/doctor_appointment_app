@@ -1,3 +1,4 @@
+import 'package:doctor_appointment_app/presentation/screens/profile_screen.dart';
 import 'package:doctor_appointment_app/presentation/screens/splash_screen.dart';
 import 'package:flutter/material.dart';
 
@@ -15,7 +16,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
       ),
-      home: SplashScreen(),
+      home: ProfileScreen(),
     );
   }
 }
