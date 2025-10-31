@@ -37,7 +37,7 @@ class _SplashScreenState extends State<SplashScreen> {
         child: Stack(
           children: [
             Image.asset(
-              "assets/images/app_logo_background.png",
+              "assets/images/splash_screen/app_logo_background.png",
               fit: BoxFit.fill,
               width: double.infinity,
             ),
@@ -47,7 +47,7 @@ class _SplashScreenState extends State<SplashScreen> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Image.asset("assets/images/app_logo.png", width: width * 0.2),
+                  Image.asset("assets/images/splash_screen/app_logo.png", width: width * 0.2),
                   SizedBox(width: width * 0.05),
                   // Text(
                   //   'Docdoc',
@@ -58,7 +58,7 @@ class _SplashScreenState extends State<SplashScreen> {
                   //   ),
                   // ),
                   Image.asset(
-                    "assets/images/app_name.png",
+                    "assets/images/splash_screen/app_name.png",
                     fit: BoxFit.contain,
                     width: width * 0.4, // or whatever looks good
                     errorBuilder: (context, error, stackTrace) {

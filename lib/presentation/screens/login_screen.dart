@@ -279,7 +279,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                     child: Padding(
                       padding: const EdgeInsets.all(10.0),
-                      child: Image.asset("assets/images/google_icon.png"),
+                      child: Image.asset("assets/images/login_and_signup_screens/google_icon.png"),
                     ),
                   ),
                   const SizedBox(width: 20),
@@ -293,7 +293,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                     child: Padding(
                       padding: const EdgeInsets.all(10.0),
-                      child: Image.asset("assets/images/fb_icon.png"),
+                      child: Image.asset("assets/images/login_and_signup_screens/fb_icon.png"),
                     ),
                   ),
                   const SizedBox(width: 20),
@@ -307,7 +307,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                     child: Padding(
                       padding: const EdgeInsets.all(10.0),
-                      child: Image.asset("assets/images/apple_icon.png"),
+                      child: Image.asset("assets/images/login_and_signup_screens/apple_icon.png"),
                     ),
                   ),
                 ],
@@ -318,38 +318,40 @@ class _LoginScreenState extends State<LoginScreen> {
                   vertical: 8.0,
                   horizontal: 25,
                 ),
-                child: Text.rich(
-                  textAlign: TextAlign.center,
-                  TextSpan(
-                    text: "By logging, you agree to our ",
-                    style: TextStyle(color: AppColors.greyText1, fontSize: 11),
-                    children: [
-                      TextSpan(
-                        text: "Terms & Conditions ",
-                        style: TextStyle(
-                          color: Colors.black,
-                          fontWeight: FontWeight.w400,
-                          fontSize: 11,
-                        ),
-                      ),
-                      TextSpan(
-                        text: "and ",
-                        style: TextStyle(
-                          color: AppColors.greyText1,
-                          fontSize: 11,
-                        ),
-                        children: [
-                          TextSpan(
-                            text: "Privacy Policy",
-                            style: TextStyle(
-                              color: Colors.black,
-                              fontWeight: FontWeight.w400,
-                              fontSize: 11,
-                            ),
+                child: Center(
+                  child: Text.rich(
+                    textAlign: TextAlign.center,
+                    TextSpan(
+                      text: "By logging, you agree to our ",
+                      style: TextStyle(color: AppColors.greyText1, fontSize: 11),
+                      children: [
+                        TextSpan(
+                          text: "Terms & Conditions ",
+                          style: TextStyle(
+                            color: Colors.black,
+                            fontWeight: FontWeight.w400,
+                            fontSize: 11,
                           ),
-                        ],
-                      ),
-                    ],
+                        ),
+                        TextSpan(
+                          text: "and ",
+                          style: TextStyle(
+                            color: AppColors.greyText1,
+                            fontSize: 11,
+                          ),
+                          children: [
+                            TextSpan(
+                              text: "Privacy Policy",
+                              style: TextStyle(
+                                color: Colors.black,
+                                fontWeight: FontWeight.w400,
+                                fontSize: 11,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ),

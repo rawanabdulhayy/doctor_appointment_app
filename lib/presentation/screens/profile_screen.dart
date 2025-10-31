@@ -82,7 +82,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   ),
                   child: ClipOval(
                     child: Image.asset(
-                      "assets/images/avatar.png",
+                      "assets/images/user_profile_screen/avatar.png",
                       fit: BoxFit.cover,
                     ),
                   ),
@@ -177,7 +177,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         child: Padding(
                           padding: const EdgeInsets.all(8.0),
                           child: Image.asset(
-                            "assets/images/personal_card_icon.png",
+                            "assets/images/user_profile_screen/personal_card_icon.png",
                             width: 24,
                             height: 24,
                           ),
@@ -222,7 +222,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         child: Padding(
                           padding: const EdgeInsets.all(8.0),
                           child: Image.asset(
-                            "assets/images/tests_icon.png",
+                            "assets/images/user_profile_screen/tests_icon.png",
                             width: 24,
                             height: 24,
                           ),
@@ -267,7 +267,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         child: Padding(
                           padding: const EdgeInsets.all(8.0),
                           child: Image.asset(
-                            "assets/images/wallet_icon.png",
+                            "assets/images/user_profile_screen/wallet_icon.png",
                             width: 24,
                             height: 24,
                           ),

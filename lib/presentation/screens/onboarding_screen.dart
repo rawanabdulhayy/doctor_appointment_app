@@ -17,7 +17,7 @@ class OnboardingScreen extends StatelessWidget {
           Positioned(
             top: height * 0.25,
             child: Image.asset(
-              "assets/images/app_logo_background.png",
+              "assets/images/splash_screen/app_logo_background.png",
               fit: BoxFit.fill,
               width: width,
             ),
@@ -36,12 +36,12 @@ class OnboardingScreen extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Image.asset(
-                        "assets/images/app_logo.png",
+                        "assets/images/splash_screen/app_logo.png",
                         width: 50,
                         height: 50,
                       ),
                       const SizedBox(width: 8),
-                      Image.asset("assets/images/app_name.png", width: 120),
+                      Image.asset("assets/images/splash_screen/app_name.png", width: 120),
                     ],
                   ),
                 ),
@@ -60,7 +60,7 @@ class OnboardingScreen extends StatelessWidget {
                       // Alternative: Container with width: double.infinity, height: double.infinity (more verbose)
                       Positioned.fill(
                         child: Image.asset(
-                          "assets/images/onboarding_dr.png",
+                          "assets/images/onboarding_screen/onboarding_dr.png",
                           fit: BoxFit.contain,
                           // BoxFit.cover: Scales image to cover entire area (may crop sides)
                           // vs BoxFit.contain: Fits entire image and maintains aspect ratio (may show empty space)
