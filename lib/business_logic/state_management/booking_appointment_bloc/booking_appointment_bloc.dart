@@ -10,7 +10,10 @@ class BookingBloc extends Bloc<BookingEvent, BookingState> {
     on<NextPageEvent>(_onNextPage);
     on<PreviousPageEvent>(_onPreviousPage);
     on<GoToPageEvent>(_onGoToPage);
+
     on<UpdateDateTimeEvent>(_onUpdateDateTime);
+    on<UpdateAppointmentTypeEvent>(_onUpdateAppointmentType);
+
     on<UpdatePaymentEvent>(_onUpdatePayment);
     on<SubmitBookingEvent>(_onSubmitBooking);
   }
@@ -38,6 +41,13 @@ class BookingBloc extends Bloc<BookingEvent, BookingState> {
       selectedDate: event.date,
       selectedTime: event.time,
     ));
+  }
+
+  void _onUpdateAppointmentType(
+      UpdateAppointmentTypeEvent event,
+      Emitter<BookingState> emit,
+      ) {
+    emit(state.copyWith(appointmentType: event.appointmentType));
   }
 
   void _onUpdatePayment(UpdatePaymentEvent event, Emitter<BookingState> emit) {

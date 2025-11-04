@@ -14,6 +14,11 @@ class UpdateDateTimeEvent extends BookingEvent {
   final String time;
   UpdateDateTimeEvent(this.date, this.time);
 }
+class UpdateAppointmentTypeEvent extends BookingEvent {
+  final String appointmentType;
+
+  UpdateAppointmentTypeEvent(this.appointmentType);
+}
 
 class UpdatePaymentEvent extends BookingEvent {
   final String paymentMethod;

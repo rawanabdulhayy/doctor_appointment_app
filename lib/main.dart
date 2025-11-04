@@ -24,3 +24,6 @@ class MyApp extends StatelessWidget {
     );
   }
 }
+//todo: navigation between pages
+//todo: working icons onPressed
+//todo: studying the implementation for the nav bar/screen wrapper/3_page_appointment_thing (appointment type selector, time slot selector and their bloc files)
