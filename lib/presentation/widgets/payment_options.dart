@@ -37,7 +37,7 @@ class PaymentOptions extends StatelessWidget {
     return BlocBuilder<BookingBloc, BookingState>(
       builder: (context, state) {
         return RadioGroup<String>(
-          groupValue: state.paymentMethod,
+          groupValue: state.paymentMethod, //current selected one -- initialised with null in booking state
           onChanged: (String? newValue) {
             if (newValue != null) {
               context.read<BookingBloc>().add(UpdatePaymentEvent(newValue));
@@ -50,7 +50,8 @@ class PaymentOptions extends StatelessWidget {
               ...List.generate(paymentMethods.length, (index) {
                 final method = paymentMethods[index];
                 final isSelected = state.paymentMethod == method['label'];
-
+                // final typeIndex = index ~/ 2;
+                //that wasn't used here because we only ever use it to know which one container has the divider belong to, here, we only ever have one generation -- payment methods, so no containers and dividers.
                 return Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [

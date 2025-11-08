@@ -28,14 +28,13 @@ class Payment extends StatelessWidget {
               ),
               const SizedBox(height: 16),
               PaymentOptions(),
-
               // Continue Button
               SizedBox(
                 width: double.infinity,
                 height: 50,
                 child: ElevatedButton(
                   onPressed:
-                  state.selectedDate != null && state.selectedTime != null
+                  state.paymentMethod != null || state.paymentMethod == 'Credit Card' && state.creditCardType != null
                       ? () {
                     context.read<BookingBloc>().add(NextPageEvent());
                   }

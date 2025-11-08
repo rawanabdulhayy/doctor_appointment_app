@@ -28,7 +28,7 @@ class AppointmentTypeSelector extends StatelessWidget {
     return BlocBuilder<BookingBloc, BookingState>(
       builder: (context, state) {
         return RadioGroup<String>(
-          groupValue: state.appointmentType, // Currently selected value
+          groupValue: state.appointmentType, // Currently selected value, initialised with null in booking.initial in booking state.
           onChanged: (value) {
             // When ANY radio is tapped
             if (value != null) {
@@ -54,6 +54,7 @@ class AppointmentTypeSelector extends StatelessWidget {
                 );
               }
 
+              // So each divider (odd index) "belongs" to the previous step — that’s why dividing by two helps you figure out which step it connects from.
               final typeIndex = index ~/ 2;
               final type = appointmentTypes[typeIndex];
               final isSelected = state.appointmentType == type['label']; //Checks if this option is currently selected

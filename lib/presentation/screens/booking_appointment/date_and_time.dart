@@ -82,6 +82,7 @@ class DateAndTime extends StatelessWidget {
                 onTimeSelected: (time) {
                   context.read<BookingBloc>().add(
                     UpdateDateTimeEvent(
+                      //already stored in picked date
                       state.selectedDate ?? DateTime.now(),
                       time,
                     ),
@@ -104,7 +105,7 @@ class DateAndTime extends StatelessWidget {
                 height: 50,
                 child: ElevatedButton(
                   onPressed:
-                      state.selectedDate != null && state.selectedTime != null
+                      state.selectedDate != null && state.selectedTime != null && state.appointmentType != null
                       ? () {
                           context.read<BookingBloc>().add(NextPageEvent());
                         }

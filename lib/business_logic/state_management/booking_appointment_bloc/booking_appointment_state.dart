@@ -1,4 +1,4 @@
-//todo: why are we using a copywith method in here?
+//todo: why are we using a copyWith method in here?
 class BookingState {
   final int currentIndex;
 
