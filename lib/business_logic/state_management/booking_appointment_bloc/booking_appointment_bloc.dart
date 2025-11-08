@@ -15,6 +15,8 @@ class BookingBloc extends Bloc<BookingEvent, BookingState> {
     on<UpdateAppointmentTypeEvent>(_onUpdateAppointmentType);
 
     on<UpdatePaymentEvent>(_onUpdatePayment);
+    on<UpdateCreditCardEvent>(_onUpdateCreditCard);
+
     on<SubmitBookingEvent>(_onSubmitBooking);
   }
 
@@ -36,43 +38,53 @@ class BookingBloc extends Bloc<BookingEvent, BookingState> {
     }
   }
 
-  void _onUpdateDateTime(UpdateDateTimeEvent event, Emitter<BookingState> emit) {
-    emit(state.copyWith(
-      selectedDate: event.date,
-      selectedTime: event.time,
-    ));
+  void _onUpdateDateTime(
+    UpdateDateTimeEvent event,
+    Emitter<BookingState> emit,
+  ) {
+    emit(state.copyWith(selectedDate: event.date, selectedTime: event.time));
   }
 
   void _onUpdateAppointmentType(
-      UpdateAppointmentTypeEvent event,
-      Emitter<BookingState> emit,
-      ) {
+    UpdateAppointmentTypeEvent event,
+    Emitter<BookingState> emit,
+  ) {
     emit(state.copyWith(appointmentType: event.appointmentType));
   }
 
   void _onUpdatePayment(UpdatePaymentEvent event, Emitter<BookingState> emit) {
-    emit(state.copyWith(paymentMethod: event.paymentMethod));
+    emit(
+      state.copyWith(
+        paymentMethod: event.paymentMethod,
+        // if user switches to something other than "Credit Card"
+        // we clear any previously selected credit card
+        creditCardType: event.paymentMethod == 'Credit Card'
+            ? state.creditCardType
+            : null,
+      ),
+    );
+  }
+
+  void _onUpdateCreditCard(
+    UpdateCreditCardEvent event,
+    Emitter<BookingState> emit,
+  ) {
+    emit(state.copyWith(creditCardType: event.creditCardType));
   }
 
   Future<void> _onSubmitBooking(
-      SubmitBookingEvent event,
-      Emitter<BookingState> emit,
-      ) async {
+    SubmitBookingEvent event,
+    Emitter<BookingState> emit,
+  ) async {
     emit(state.copyWith(isSubmitting: true, errorMessage: null));
 
     try {
       // Call your repository/API to submit booking
       // await bookingRepository.submitBooking(...);
 
-      emit(state.copyWith(
-        isSubmitting: false,
-        isSubmitted: true,
-      ));
+      emit(state.copyWith(isSubmitting: false, isSubmitted: true));
     } catch (e) {
-      emit(state.copyWith(
-        isSubmitting: false,
-        errorMessage: e.toString(),
-      ));
+      emit(state.copyWith(isSubmitting: false, errorMessage: e.toString()));
     }
   }
 }

@@ -8,6 +8,7 @@ class BookingState {
 
 
   final String? paymentMethod;
+  final String? creditCardType;
 
   final bool isSubmitting;
   final bool isSubmitted;
@@ -19,6 +20,7 @@ class BookingState {
     this.selectedTime,
     this.appointmentType,
     this.paymentMethod,
+    this.creditCardType,
     this.isSubmitting = false,
     this.isSubmitted = false,
     this.errorMessage,
@@ -32,6 +34,7 @@ class BookingState {
       selectedTime: null,
       appointmentType: null,
       paymentMethod: null,
+      creditCardType: null,
       isSubmitting: false,
       isSubmitted: false,
       errorMessage: null,
@@ -44,6 +47,7 @@ class BookingState {
     String? selectedTime,
     String? appointmentType,
     String? paymentMethod,
+    String? creditCardType,
     bool? isSubmitting,
     bool? isSubmitted,
     String? errorMessage,
@@ -54,6 +58,7 @@ class BookingState {
       selectedTime: selectedTime ?? this.selectedTime,
       appointmentType: appointmentType ?? this.appointmentType,
       paymentMethod: paymentMethod ?? this.paymentMethod,
+      creditCardType: creditCardType ?? this.creditCardType,
       isSubmitting: isSubmitting ?? this.isSubmitting,
       isSubmitted: isSubmitted ?? this.isSubmitted,
       errorMessage: errorMessage ?? this.errorMessage,

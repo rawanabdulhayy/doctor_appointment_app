@@ -69,6 +69,7 @@ flutter:
      - assets/images/splash_screen/
      - assets/images/user_profile_screen/
      - assets/images/date_and_time/
+     - assets/images/payment_options/
 
   #   - images/a_dot_ham.jpeg
 

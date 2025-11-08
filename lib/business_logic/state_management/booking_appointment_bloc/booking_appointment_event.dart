@@ -1,4 +1,9 @@
-abstract class BookingEvent {}
+import 'package:equatable/equatable.dart';
+
+abstract class BookingEvent extends Equatable {
+  @override
+  List<Object?> get props => [];
+}
 
 class NextPageEvent extends BookingEvent {}
 
@@ -14,6 +19,7 @@ class UpdateDateTimeEvent extends BookingEvent {
   final String time;
   UpdateDateTimeEvent(this.date, this.time);
 }
+
 class UpdateAppointmentTypeEvent extends BookingEvent {
   final String appointmentType;
 
@@ -23,6 +29,17 @@ class UpdateAppointmentTypeEvent extends BookingEvent {
 class UpdatePaymentEvent extends BookingEvent {
   final String paymentMethod;
   UpdatePaymentEvent(this.paymentMethod);
+
+  @override
+  List<Object?> get props => [paymentMethod];
+}
+
+class UpdateCreditCardEvent extends BookingEvent {
+  final String creditCardType;
+  UpdateCreditCardEvent(this.creditCardType);
+
+  @override
+  List<Object?> get props => [creditCardType];
 }
 
 class SubmitBookingEvent extends BookingEvent {}
