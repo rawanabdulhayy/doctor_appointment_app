@@ -18,6 +18,7 @@ class MainNavigationScreen extends StatelessWidget {
       child: BlocBuilder<NavigationBloc, NavigationState>(
         builder: (context, state) {
           return ScreenWrapper(
+            showAppBar: false,
             child: IndexedStack(
               index: state.currentIndex,
               children: const [

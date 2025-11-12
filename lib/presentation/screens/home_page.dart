@@ -1,4 +1,5 @@
 import 'package:doctor_appointment_app/core/app_colors/app_colors.dart';
+import 'package:doctor_appointment_app/presentation/screens/recommendation_doctor.dart';
 import 'package:flutter/material.dart';
 
 import '../widgets/doctor_card.dart';
@@ -113,9 +114,7 @@ class _HomePageState extends State<HomePage> {
               children: [
                 //background container
                 Container(
-                  margin: const EdgeInsets.all(
-                    16,
-                  ),
+                  margin: const EdgeInsets.all(16),
                   height: height * 0.5 * 0.5,
                   width: width,
                   decoration: BoxDecoration(
@@ -223,7 +222,16 @@ class _HomePageState extends State<HomePage> {
                   ),
                   Spacer(),
                   TextButton(
-                    onPressed: () {},
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) {
+                            return RecommendationDoctor();
+                          },
+                        ),
+                      );
+                    },
                     child: Text(
                       "See All",
                       style: TextStyle(
@@ -238,8 +246,10 @@ class _HomePageState extends State<HomePage> {
             ),
             ListView(
               shrinkWrap: true,
-              physics: NeverScrollableScrollPhysics(),  // Disable inner scroll
-              padding: EdgeInsets.zero, // Remove default ListView padding because he DoctorCard already has margin built into it. we can't add padding to the ListView, because then we'd be getting double horizontal spacing, which causes an overflow.
+              physics: NeverScrollableScrollPhysics(), // Disable inner scroll
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              // padding: EdgeInsets
+              //     .zero, // Remove default ListView padding because he DoctorCard already has margin built into it. we can't add padding to the ListView, because then we'd be getting double horizontal spacing, which causes an overflow.
               scrollDirection: Axis.vertical,
               children: [
                 DoctorCard(

@@ -16,14 +16,15 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      debugShowCheckedModeBanner: false,
       title: 'Flutter Demo',
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
       ),
-      home: ThreePageBookingAppointment(),
+      home: MainNavigationScreen(),
     );
   }
 }
 //todo: navigation between pages
 //todo: working icons onPressed
-//todo: studying the implementation for the nav bar/screen wrapper/3_page_appointment_thing (appointment type selector, time slot selector and their bloc files)
+//todo: studying the implementation for the nav bar/screen wrapper/3_page_appointment_thing (appointment type selector, time slot selector and their bloc files, summary)
