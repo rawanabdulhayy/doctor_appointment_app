@@ -1,19 +1,23 @@
 import 'package:equatable/equatable.dart';
 
-import '../../../data/models/doctor.dart';
+import '../../../data/models/doctor_model.dart';
 
-abstract class DoctorFilterState extends Equatable {
-  const DoctorFilterState();
+abstract class DoctorState extends Equatable {
+  const DoctorState();
 
   @override
   List<Object?> get props => [];
 }
+class DoctorInfoInitial extends DoctorState {}
 
-class DoctorFilterInitial extends DoctorFilterState {}
+class DoctorFilterInitial extends DoctorState {}
 
-class DoctorFilterLoading extends DoctorFilterState {}
+class DoctorLoading extends DoctorState {}
 
-class DoctorFilterLoaded extends DoctorFilterState {
+class DoctorFilterLoading extends DoctorState {}
+
+//this works for both, showing the list of raw fetched drs data, and the list of filtered or searched-for drs.
+class DoctorsListLoaded extends DoctorState {
   //when is it that I know I should be declaring a variable inside a state and when should be declared inside the event?
 
   //   BLOC USAGE:
@@ -37,7 +41,7 @@ class DoctorFilterLoaded extends DoctorFilterState {
   final int? selectedRating;
   final String searchQuery;
 
-  const DoctorFilterLoaded({
+  const DoctorsListLoaded({
     required this.allDoctors,
     required this.filteredDoctors,
     this.selectedSpeciality,
@@ -56,7 +60,7 @@ class DoctorFilterLoaded extends DoctorFilterState {
 
   //why should we use a copyWith whilst defining our state classes?
   //when do we know we need to define one in a given state class?
-  DoctorFilterLoaded copyWith({
+  DoctorsListLoaded copyWith({
     List<Doctor>? allDoctors,
     List<Doctor>? filteredDoctors,
     String? selectedSpeciality,
@@ -65,7 +69,7 @@ class DoctorFilterLoaded extends DoctorFilterState {
     bool clearSpeciality = false,
     bool clearRating = false,
   }) {
-    return DoctorFilterLoaded(
+    return DoctorsListLoaded(
       allDoctors: allDoctors ?? this.allDoctors,
       filteredDoctors: filteredDoctors ?? this.filteredDoctors,
       selectedSpeciality: clearSpeciality
@@ -79,11 +83,22 @@ class DoctorFilterLoaded extends DoctorFilterState {
   }
 }
 
-class DoctorFilterError extends DoctorFilterState {
+class DoctorInfoLoaded extends DoctorState {
+  final Doctor doctor;
+
+  const DoctorInfoLoaded(this.doctor);
+
+  @override
+  List<Object> get props => [doctor];
+}
+
+class DoctorError extends DoctorState {
   final String message;
 
-  const DoctorFilterError(this.message);
+  const DoctorError(this.message);
 
   @override
   List<Object> get props => [message];
 }
+
+

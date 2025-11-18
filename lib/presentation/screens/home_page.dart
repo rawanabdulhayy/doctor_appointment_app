@@ -1,7 +1,10 @@
 import 'package:doctor_appointment_app/core/app_colors/app_colors.dart';
 import 'package:doctor_appointment_app/presentation/screens/recommendation_doctor.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../business_logic/state_management/doctor_information_bloc/doctor_information_bloc.dart';
+import '../../business_logic/state_management/doctor_information_bloc/doctor_information_state.dart';
 import '../widgets/doctor_card.dart';
 import '../widgets/speciality_card.dart';
 
@@ -244,32 +247,79 @@ class _HomePageState extends State<HomePage> {
                 ],
               ),
             ),
-            ListView(
-              shrinkWrap: true,
-              physics: NeverScrollableScrollPhysics(), // Disable inner scroll
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              // padding: EdgeInsets
-              //     .zero, // Remove default ListView padding because he DoctorCard already has margin built into it. we can't add padding to the ListView, because then we'd be getting double horizontal spacing, which causes an overflow.
-              scrollDirection: Axis.vertical,
-              children: [
-                DoctorCard(
-                  image: "assets/images/home_page/dr1.png",
-                  name: "Dr. Sarah Johnson",
-                  speciality: "Cardiologist",
-                  rating: 4.8,
-                  reviewsNumber: 128,
-                  university: "Harvard Medical School",
-                ),
-                DoctorCard(
-                  image: "assets/images/home_page/dr2.png",
-                  name: "Dr. Omar Khaled",
-                  speciality: "Neurologist",
-                  rating: 4.6,
-                  reviewsNumber: 98,
-                  university: "Stanford University",
-                ),
-              ],
-            ),
+            // ListView(
+            //   shrinkWrap: true,
+            //   physics: NeverScrollableScrollPhysics(), // Disable inner scroll
+            //   padding: const EdgeInsets.symmetric(horizontal: 16),
+            //   // padding: EdgeInsets
+            //   //     .zero, // Remove default ListView padding because he DoctorCard already has margin built into it. we can't add padding to the ListView, because then we'd be getting double horizontal spacing, which causes an overflow.
+            //   scrollDirection: Axis.vertical,
+            //   children: [
+            //     DoctorCard(
+            //       image: "assets/images/home_page/dr1.png",
+            //       name: "Dr. Sarah Johnson",
+            //       speciality: "Cardiologist",
+            //       rating: 4.8,
+            //       reviewsNumber: 128,
+            //       university: "Harvard Medical School",
+            //     ),
+            //     DoctorCard(
+            //       image: "assets/images/home_page/dr2.png",
+            //       name: "Dr. Omar Khaled",
+            //       speciality: "Neurologist",
+            //       rating: 4.6,
+            //       reviewsNumber: 98,
+            //       university: "Stanford University",
+            //     ),
+            //   ],
+            // ),
+
+            BlocBuilder<DoctorBloc, DoctorState>(
+              builder: (context, state) {
+
+                if (state is DoctorFilterLoading) {
+                  return Center(child: CircularProgressIndicator());
+                }
+
+                if (state is DoctorsListLoaded) {
+                  final doctors = state.allDoctors;
+
+                  if (doctors.isEmpty) {
+                    return Padding(
+                      padding: const EdgeInsets.only(top: 40),
+                      child: Center(
+                        child: Text(
+                          "No doctors found",
+                          style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+                        ),
+                      ),
+                    );
+                  }
+
+                  return ListView.builder(
+                    shrinkWrap: true,
+                    physics: NeverScrollableScrollPhysics(),
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    itemCount: doctors.length,
+                    itemBuilder: (context, index) {
+                      final doctor = doctors[index];
+
+                      return DoctorCard(
+                        image: doctor.photo,
+                        name: doctor.name,
+                        speciality: doctor.speciality,
+                        rating: doctor.rating,
+                        reviewsNumber: 120,
+                        university: doctor.university,
+                      );
+                    },
+                  );
+                }
+
+                return SizedBox.shrink(); // default fallback
+              },
+            )
+
           ],
         ),
       ),

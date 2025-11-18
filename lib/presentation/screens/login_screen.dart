@@ -1,8 +1,13 @@
+import 'package:doctor_appointment_app/business_logic/state_management/doctor_information_bloc/doctor_information_event.dart';
 import 'package:doctor_appointment_app/core/app_colors/app_colors.dart';
 import 'package:doctor_appointment_app/presentation/screens/sign_up.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import '../../business_logic/state_management/doctor_information_bloc/doctor_information_bloc.dart';
+import '../../core/dependency_injection/injection_container.dart';
 import '../../core/helper_widgets/custom_snackbar.dart';
 import '../../core/utils/validators.dart';
+import '../widgets/screen_wrapper/main_nav_screen.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -223,6 +228,18 @@ class _LoginScreenState extends State<LoginScreen> {
                             'Login successful!',
                             type: SnackBarType.success,
                           );
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) {
+                                return BlocProvider(
+                                  create: (context) =>
+                                      sl<DoctorBloc>()..add(LoadDoctorsList()),
+                                  child: MainNavigationScreen(),
+                                );
+                              },
+                            ),
+                          );
                         } else {
                           SnackBarHelper.show(
                             context,
@@ -279,7 +296,9 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                     child: Padding(
                       padding: const EdgeInsets.all(10.0),
-                      child: Image.asset("assets/images/login_and_signup_screens/google_icon.png"),
+                      child: Image.asset(
+                        "assets/images/login_and_signup_screens/google_icon.png",
+                      ),
                     ),
                   ),
                   const SizedBox(width: 20),
@@ -293,7 +312,9 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                     child: Padding(
                       padding: const EdgeInsets.all(10.0),
-                      child: Image.asset("assets/images/login_and_signup_screens/fb_icon.png"),
+                      child: Image.asset(
+                        "assets/images/login_and_signup_screens/fb_icon.png",
+                      ),
                     ),
                   ),
                   const SizedBox(width: 20),
@@ -307,7 +328,9 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                     child: Padding(
                       padding: const EdgeInsets.all(10.0),
-                      child: Image.asset("assets/images/login_and_signup_screens/apple_icon.png"),
+                      child: Image.asset(
+                        "assets/images/login_and_signup_screens/apple_icon.png",
+                      ),
                     ),
                   ),
                 ],
@@ -323,7 +346,10 @@ class _LoginScreenState extends State<LoginScreen> {
                     textAlign: TextAlign.center,
                     TextSpan(
                       text: "By logging, you agree to our ",
-                      style: TextStyle(color: AppColors.greyText1, fontSize: 11),
+                      style: TextStyle(
+                        color: AppColors.greyText1,
+                        fontSize: 11,
+                      ),
                       children: [
                         TextSpan(
                           text: "Terms & Conditions ",

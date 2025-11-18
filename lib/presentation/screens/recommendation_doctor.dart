@@ -1,11 +1,13 @@
+import 'package:doctor_appointment_app/data/repositories/doctor_repo.dart';
 import 'package:doctor_appointment_app/presentation/widgets/sort_modal_sheet.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-
-import '../../business_logic/state_management/recommendation_doctor_bloc/recommendation_doctor_bloc.dart';
-import '../../business_logic/state_management/recommendation_doctor_bloc/recommendation_doctor_event.dart';
-import '../../business_logic/state_management/recommendation_doctor_bloc/recommendation_doctor_state.dart';
+import '../../business_logic/state_management/doctor_information_bloc/doctor_information_bloc.dart';
+import '../../business_logic/state_management/doctor_information_bloc/doctor_information_event.dart';
+import '../../business_logic/state_management/doctor_information_bloc/doctor_information_state.dart';
+import '../../core/dependency_injection/injection_container.dart';
 import '../widgets/doctor_card.dart';
+import 'about_doctor/about_doctor.dart';
 
 //why do we have a separate RecommendationDoctor widget that only ever builds a context for a blocProvider to wrap the RecommendationDoctorView? can't we just wrap the blocProvider whilst navigating to the RecommendationDoctorView page?
 class RecommendationDoctor extends StatelessWidget {
@@ -15,7 +17,11 @@ class RecommendationDoctor extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocProvider(
       //what does the two dots (..) operator do? and how are they different from the three dots (...) used in here (...List.generate(paymentMethods.length, (index) {)? what are each's use cases?
-      create: (context) => DoctorFilterBloc()..add(LoadDoctors()),
+
+      //that would have been the way without having created an injection container:
+      // create: (context) => DoctorBloc(repository: DoctorRepository(baseUrl: baseUrl))..add(LoadDoctorsList()),
+
+      create: (context) => sl<DoctorBloc>()..add(LoadDoctorsList()),
       child: const RecommendationDoctorView(),
     );
   }
@@ -51,7 +57,7 @@ class RecommendationDoctorView extends StatelessWidget {
         child: Column(
           children: [
             // Search and Sort Row
-            BlocBuilder<DoctorFilterBloc, DoctorFilterState>(
+            BlocBuilder<DoctorBloc, DoctorState>(
               builder: (context, state) {
                 return Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -60,9 +66,15 @@ class RecommendationDoctorView extends StatelessWidget {
                       flex: 10,
                       child: SearchBar(
                         onChanged: (searchQuery) {
-                          context.read<DoctorFilterBloc>().add(SearchDoctors(searchQuery));
+                          context.read<DoctorBloc>().add(
+                            SearchDoctors(searchQuery),
+                          );
                         },
-                        leading: Image.asset("assets/images/recommendation_dr/search_normal.png", width: 24, height: 24,),
+                        leading: Image.asset(
+                          "assets/images/recommendation_dr/search_normal.png",
+                          width: 24,
+                          height: 24,
+                        ),
                         hintText: 'Search',
                         hintStyle: WidgetStatePropertyAll(
                           TextStyle(color: Color.fromRGBO(194, 194, 194, 1)),
@@ -84,7 +96,11 @@ class RecommendationDoctorView extends StatelessWidget {
                       child: GestureDetector(
                         //showing a modal sheet needs its own context?
                         onTap: () => _showSortModalSheet(context, state),
-                        child: Image.asset("assets/images/recommendation_dr/sort.png", width: 30, height: 30,),
+                        child: Image.asset(
+                          "assets/images/recommendation_dr/sort.png",
+                          width: 30,
+                          height: 30,
+                        ),
                       ),
                     ),
                   ],
@@ -95,17 +111,17 @@ class RecommendationDoctorView extends StatelessWidget {
 
             // Doctor List
             Expanded(
-              child: BlocBuilder<DoctorFilterBloc, DoctorFilterState>(
+              child: BlocBuilder<DoctorBloc, DoctorState>(
                 builder: (context, state) {
                   if (state is DoctorFilterLoading) {
                     return Center(child: CircularProgressIndicator());
                   }
 
-                  if (state is DoctorFilterError) {
+                  if (state is DoctorError) {
                     return Center(child: Text(state.message));
                   }
 
-                  if (state is DoctorFilterLoaded) {
+                  if (state is DoctorsListLoaded) {
                     if (state.filteredDoctors.isEmpty) {
                       return Center(
                         child: Text('No doctors found matching your criteria'),
@@ -116,13 +132,28 @@ class RecommendationDoctorView extends StatelessWidget {
                       itemCount: state.filteredDoctors.length,
                       itemBuilder: (context, index) {
                         final doctor = state.filteredDoctors[index];
-                        return DoctorCard(
-                          image: doctor.image,
-                          name: doctor.name,
-                          speciality: doctor.speciality,
-                          rating: doctor.rating,
-                          reviewsNumber: doctor.reviewsNumber,
-                          university: doctor.university,
+                        return GestureDetector(
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) {
+                                  return AboutDoctor(
+                                    doctorId: doctor.id
+                                        .toString(),
+                                  );
+                                },
+                              ),
+                            );
+                          },
+                          child: DoctorCard(
+                            image: doctor.photo,
+                            name: doctor.name,
+                            speciality: doctor.speciality,
+                            rating: doctor.rating,
+                            reviewsNumber: doctor.reviewsNumber,
+                            university: doctor.university,
+                          ),
                         );
                       },
                     );
@@ -138,9 +169,9 @@ class RecommendationDoctorView extends StatelessWidget {
     );
   }
 
-  void _showSortModalSheet(BuildContext context, DoctorFilterState state) {
+  void _showSortModalSheet(BuildContext context, DoctorState state) {
     //what does the (is!) operator mean?
-    if (state is! DoctorFilterLoaded) return;
+    if (state is! DoctorsListLoaded) return;
 
     showModalBottomSheet(
       context: context,
@@ -151,7 +182,7 @@ class RecommendationDoctorView extends StatelessWidget {
         selectedSpeciality: state.selectedSpeciality,
         selectedRating: state.selectedRating,
         onApply: (speciality, rating) {
-          context.read<DoctorFilterBloc>().add(
+          context.read<DoctorBloc>().add(
             ApplyFilter(speciality: speciality, rating: rating),
           );
         },

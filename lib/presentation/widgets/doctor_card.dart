@@ -1,36 +1,4 @@
-// import 'package:flutter/material.dart';
-//
-// class DoctorCard extends StatelessWidget {
-//   const DoctorCard({super.key});
-//
-//   @override
-//   Widget build(BuildContext context) {
-//     return Container(
-//       child: Row(
-//         children: [
-//           //image
-//           Image.asset(name)
-//           //info
-//           Column(
-//             children: [
-//               //the name
-//               //speciality and uni
-//               Row(
-//                 children: [
-//
-//                 ],
-//               ),
-//               //rating and reviews
-//             ],
-//           ),
-//         ],
-//       ),
-//     );
-//   }
-// }
-
 import 'package:flutter/material.dart';
-import 'package:doctor_appointment_app/core/app_colors/app_colors.dart'; // optional if you have color constants
 
 class DoctorCard extends StatelessWidget {
   final String image;
@@ -70,7 +38,7 @@ class DoctorCard extends StatelessWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          // 🩺 Doctor image
+          // Doctor image
           ClipRRect(
             borderRadius: BorderRadius.circular(12),
             child: Image.asset(
@@ -82,7 +50,7 @@ class DoctorCard extends StatelessWidget {
           ),
           const SizedBox(width: 16),
 
-          // 👨‍⚕️ Doctor info
+          // Doctor info
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,

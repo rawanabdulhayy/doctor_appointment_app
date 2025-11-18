@@ -1,15 +1,23 @@
 import 'package:equatable/equatable.dart';
 
-abstract class DoctorFilterEvent extends Equatable {
-  const DoctorFilterEvent();
+abstract class DoctorEvent extends Equatable {
+  const DoctorEvent();
 
   @override
   List<Object?> get props => [];
 }
+class LoadDoctorDetails extends DoctorEvent {
+  final String doctorId;
 
-class LoadDoctors extends DoctorFilterEvent {}
+  const LoadDoctorDetails(this.doctorId);
 
-class ApplyFilter extends DoctorFilterEvent {
+  @override
+  List<Object> get props => [doctorId];
+}
+
+class LoadDoctorsList extends DoctorEvent {}
+
+class ApplyFilter extends DoctorEvent {
   final String? speciality;
   final int? rating;
 
@@ -19,7 +27,7 @@ class ApplyFilter extends DoctorFilterEvent {
   List<Object?> get props => [speciality, rating];
 }
 
-class SearchDoctors extends DoctorFilterEvent {
+class SearchDoctors extends DoctorEvent {
   // this is passed from the UI widget variable, so be it that I wanna be saving this value to a state variable eventually in the bloc file
   // e.g: emit(state.copyWith(selectedDate: event.date, selectedTime: event.time));
   // or that I wanna be using it to a apply some function in the bloc
@@ -36,4 +44,4 @@ class SearchDoctors extends DoctorFilterEvent {
   List<Object> get props => [query];
 }
 
-class ClearFilters extends DoctorFilterEvent {}
+class ClearFilters extends DoctorEvent {}
