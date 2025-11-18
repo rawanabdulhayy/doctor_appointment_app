@@ -1,32 +1,30 @@
-import 'package:doctor_appointment_app/business_logic/state_management/doctor_information_bloc/doctor_information_event.dart';
-import 'package:doctor_appointment_app/core/app_colors/app_colors.dart';
-import 'package:doctor_appointment_app/presentation/screens/sign_up.dart';
+import 'package:doctor_appointment_app/core/utils/validators.dart';
+import 'package:doctor_appointment_app/presentation/screens/authentication_screens/login_screen.dart';
+import 'package:doctor_appointment_app/presentation/widgets/phone_input_field.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import '../../business_logic/state_management/doctor_information_bloc/doctor_information_bloc.dart';
-import '../../core/dependency_injection/injection_container.dart';
-import '../../core/helper_widgets/custom_snackbar.dart';
-import '../../core/utils/validators.dart';
-import '../widgets/screen_wrapper/main_nav_screen.dart';
+import '../../../core/app_colors/app_colors.dart';
+import '../../../core/helper_widgets/custom_snackbar.dart';
 
-class LoginScreen extends StatefulWidget {
-  const LoginScreen({super.key});
+class SignUp extends StatefulWidget {
+  const SignUp({super.key});
 
   @override
-  State<LoginScreen> createState() => _LoginScreenState();
+  State<SignUp> createState() => _SignUpState();
 }
 
-class _LoginScreenState extends State<LoginScreen> {
+class _SignUpState extends State<SignUp> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
+  final _phoneController = TextEditingController();
+
   final formKey = GlobalKey<FormState>();
   bool _obscurePassword = true;
-  bool _rememberMe = false;
 
   @override
   void dispose() {
     _emailController.dispose();
     _passwordController.dispose();
+    _phoneController.dispose();
     super.dispose();
   }
 
@@ -36,11 +34,12 @@ class _LoginScreenState extends State<LoginScreen> {
     final height = MediaQuery.of(context).size.height;
 
     return Scaffold(
+      //makes the keyboard act as another layer on top of the page, so that it doesn't screw the height of page or cause an overflow error.
       resizeToAvoidBottomInset: false,
       backgroundColor: AppColors.backgroundWhite,
       body: Padding(
         padding: EdgeInsets.symmetric(
-          vertical: height * 1 / 8,
+          vertical: height * 1 / 9,
           horizontal: width * 0.08,
         ),
         child: SingleChildScrollView(
@@ -48,7 +47,7 @@ class _LoginScreenState extends State<LoginScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                'Welcome Back',
+                'Create Account',
                 style: TextStyle(
                   fontSize: 24,
                   fontWeight: FontWeight.w700,
@@ -57,9 +56,9 @@ class _LoginScreenState extends State<LoginScreen> {
               ),
               SizedBox(height: 15),
               Text(
-                "We're excited to have you back, can't wait to "
-                "see what you've been up to since you last"
-                " logged in.",
+              "Sign up now and start exploring all that our"
+                  "app has to offer. We're excited to welcome"
+                  " you to our community!",
                 style: TextStyle(
                   fontSize: 17,
                   fontWeight: FontWeight.w400,
@@ -67,6 +66,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
               ),
               const SizedBox(height: 25),
+              //form takes a key, and the key is declared BEFORE the build as GlobalKey<FormState>().
               Form(
                 key: formKey,
                 child: Column(
@@ -111,7 +111,6 @@ class _LoginScreenState extends State<LoginScreen> {
                           color: Color.fromRGBO(194, 194, 194, 1),
                           fontWeight: FontWeight.w500,
                         ),
-                        // By default, Flutter only shows the border color when the field is enabled but not focused.
                         enabledBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.all(Radius.circular(16)),
                           borderSide: BorderSide(
@@ -123,13 +122,14 @@ class _LoginScreenState extends State<LoginScreen> {
                           borderRadius: BorderRadius.all(Radius.circular(16)),
                           borderSide: BorderSide(
                             width: 1.5,
-                            color: Colors.blue, // highlight color when focused
+                            color: Colors.blue,
                           ),
                         ),
                         errorBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.all(Radius.circular(16)),
                           borderSide: BorderSide(width: 1.5, color: Colors.red),
                         ),
+                        // suffix icon for seeing or hiding the password text value, and toggling in a setState.
                         suffixIcon: IconButton(
                           icon: Icon(
                             _obscurePassword
@@ -147,71 +147,8 @@ class _LoginScreenState extends State<LoginScreen> {
                       validator: Validators.validatePassword,
                     ),
                     const SizedBox(height: 15),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Row(
-                          children: [
-                            Checkbox(
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(4),
-                              ),
-                              value: _rememberMe,
-                              side: BorderSide(
-                                color: AppColors.greyText1,
-                                width: 2,
-                              ),
-                              fillColor: WidgetStateProperty.resolveWith<Color>(
-                                (Set<WidgetState> states) {
-                                  if (states.contains(WidgetState.selected)) {
-                                    return AppColors.boldPrimaryColor;
-                                  }
-                                  return Colors.white;
-                                },
-                              ),
-                              onChanged: (value) {
-                                setState(() {
-                                  _rememberMe = value!;
-                                });
-                              },
-                            ),
-                            Text(
-                              'Remember Me',
-                              style: TextStyle(
-                                fontSize: 14,
-                                color: AppColors.greyText1,
-                              ),
-                            ),
-                          ],
-                        ),
-                        TextButton(
-                          onPressed: () {
-                            if (formKey.currentState!.validate()) {
-                              SnackBarHelper.show(
-                                context,
-                                'New password has been sent to your mail!',
-                                type: SnackBarType.success,
-                              );
-                            } else {
-                              SnackBarHelper.show(
-                                context,
-                                'Please fix the errors in red.',
-                                type: SnackBarType.error,
-                              );
-                            }
-                          },
-                          child: Text(
-                            'Forgot Password?',
-                            style: TextStyle(
-                              color: AppColors.faintPrimaryColor,
-                              fontSize: 12,
-                              fontWeight: FontWeight.w400,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 25),
+                    PhoneInputField(controller: _phoneController),
+                    const SizedBox(height: 15),
                     ElevatedButton(
                       style: ElevatedButton.styleFrom(
                         minimumSize: Size(width, 52),
@@ -225,20 +162,8 @@ class _LoginScreenState extends State<LoginScreen> {
                         if (formKey.currentState!.validate()) {
                           SnackBarHelper.show(
                             context,
-                            'Login successful!',
+                            'Account created successfully!',
                             type: SnackBarType.success,
-                          );
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (_) {
-                                return BlocProvider(
-                                  create: (context) =>
-                                      sl<DoctorBloc>()..add(LoadDoctorsList()),
-                                  child: MainNavigationScreen(),
-                                );
-                              },
-                            ),
                           );
                         } else {
                           SnackBarHelper.show(
@@ -248,8 +173,9 @@ class _LoginScreenState extends State<LoginScreen> {
                           );
                         }
                       },
+
                       child: Text(
-                        'Login',
+                        'Sign Up',
                         style: TextStyle(
                           fontWeight: FontWeight.w600,
                           fontSize: 16,
@@ -266,7 +192,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           ),
                         ),
                         Text(
-                          "  Or sign in with  ",
+                          "  Or sign up with  ",
                           style: TextStyle(
                             fontSize: 12,
                             color: AppColors.greyText1,
@@ -296,9 +222,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                     child: Padding(
                       padding: const EdgeInsets.all(10.0),
-                      child: Image.asset(
-                        "assets/images/login_and_signup_screens/google_icon.png",
-                      ),
+                      child: Image.asset("assets/images/login_and_signup_screens/google_icon.png"),
                     ),
                   ),
                   const SizedBox(width: 20),
@@ -312,9 +236,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                     child: Padding(
                       padding: const EdgeInsets.all(10.0),
-                      child: Image.asset(
-                        "assets/images/login_and_signup_screens/fb_icon.png",
-                      ),
+                      child: Image.asset("assets/images/login_and_signup_screens/fb_icon.png"),
                     ),
                   ),
                   const SizedBox(width: 20),
@@ -328,9 +250,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                     child: Padding(
                       padding: const EdgeInsets.all(10.0),
-                      child: Image.asset(
-                        "assets/images/login_and_signup_screens/apple_icon.png",
-                      ),
+                      child: Image.asset("assets/images/login_and_signup_screens/apple_icon.png"),
                     ),
                   ),
                 ],
@@ -345,11 +265,8 @@ class _LoginScreenState extends State<LoginScreen> {
                   child: Text.rich(
                     textAlign: TextAlign.center,
                     TextSpan(
-                      text: "By logging, you agree to our ",
-                      style: TextStyle(
-                        color: AppColors.greyText1,
-                        fontSize: 11,
-                      ),
+                      text: "By registering, you agree to our ",
+                      style: TextStyle(color: AppColors.greyText1, fontSize: 11),
                       children: [
                         TextSpan(
                           text: "Terms & Conditions ",
@@ -381,7 +298,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                 ),
               ),
-              const SizedBox(height: 20),
+              const SizedBox(height: 10),
 
               Center(
                 child: GestureDetector(
@@ -390,17 +307,17 @@ class _LoginScreenState extends State<LoginScreen> {
                       context,
                       MaterialPageRoute(
                         builder: (_) {
-                          return const SignUp();
+                          return const LoginScreen();
                         },
                       ),
                     );
                   },
                   child: Text.rich(
                     TextSpan(
-                      text: 'Don\'t have an account yet? ',
+                      text: 'Already have an account? ',
                       children: [
                         TextSpan(
-                          text: "Sign Up",
+                          text: "Login",
                           style: TextStyle(
                             color: AppColors.boldPrimaryColor,
                             fontWeight: FontWeight.w400,
@@ -413,7 +330,13 @@ class _LoginScreenState extends State<LoginScreen> {
                       color: Colors.black,
                       fontWeight: FontWeight.w400,
                       fontSize: 11,
+                      height: 1.8,
                     ),
+                    // strutStyle: StrutStyle(
+                    //   forceStrutHeight: true,
+                    //   height: 1.8, // Ensures consistent height
+                    //   leading: 0.5, // Extra space for descenders
+                    // ),
                   ),
                 ),
               ),

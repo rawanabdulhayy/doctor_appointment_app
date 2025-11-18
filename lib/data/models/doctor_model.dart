@@ -51,6 +51,7 @@ class Doctor extends Equatable {
     endTime,
   ];
 
+  // json here is of type Map<String, dynamic> because we already use dio, which decodes the json strings into a map structure automatically.
   factory Doctor.fromJson(Map<String, dynamic> json) {
     return Doctor(
       id: json['id'] ?? 0,

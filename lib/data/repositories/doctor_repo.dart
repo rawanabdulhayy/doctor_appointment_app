@@ -15,6 +15,7 @@ class DoctorRepositoryImpl implements DoctorRepositoryInterface {
         ),
       );
 
+  @override
   Future<Doctor> getDoctorById(String id) async {
     try {
       final response = await dio.get(
@@ -23,16 +24,17 @@ class DoctorRepositoryImpl implements DoctorRepositoryInterface {
       );
 
       if (response.statusCode == 200) {
-        // If your API returns the doctor data directly
+        ///Handling different data types
+        // If API returns the doctor data directly
         if (response.data is Map<String, dynamic>) {
           return Doctor.fromJson(response.data);
         }
-        // If your API returns { "data": { ...doctor data... } }
+        // If API returns { "data": { ...doctor data... } }
         else if (response.data is Map<String, dynamic> &&
             response.data['data'] != null) {
           return Doctor.fromJson(response.data['data']);
         }
-        // If your API returns { "data": [{ ...doctor data... }] } (array)
+        // If API returns { "data": [{ ...doctor data... }] } (array)
         else if (response.data is Map<String, dynamic> &&
             response.data['data'] is List &&
             response.data['data'].isNotEmpty) {
@@ -54,6 +56,7 @@ class DoctorRepositoryImpl implements DoctorRepositoryInterface {
     }
   }
 
+  @override
   Future<List<Doctor>> getDoctors() async {
     // Implement actual API call to get doctors list
     // For now, keeping your mock data structure

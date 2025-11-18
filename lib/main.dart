@@ -1,6 +1,6 @@
 import 'package:doctor_appointment_app/presentation/screens/booking_appointment/date_and_time.dart';
 import 'package:doctor_appointment_app/presentation/screens/home_page.dart';
-import 'package:doctor_appointment_app/presentation/screens/login_screen.dart';
+import 'package:doctor_appointment_app/presentation/screens/authentication_screens/login_screen.dart';
 import 'package:doctor_appointment_app/presentation/screens/profile_screen.dart';
 import 'package:doctor_appointment_app/presentation/screens/splash_screen.dart';
 import 'package:doctor_appointment_app/presentation/widgets/screen_wrapper/main_nav_screen.dart';

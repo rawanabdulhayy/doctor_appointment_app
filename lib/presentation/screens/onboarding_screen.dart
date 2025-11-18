@@ -1,4 +1,4 @@
-import 'package:doctor_appointment_app/presentation/screens/login_screen.dart';
+import 'package:doctor_appointment_app/presentation/screens/authentication_screens/login_screen.dart';
 import 'package:flutter/material.dart';
 
 class OnboardingScreen extends StatelessWidget {

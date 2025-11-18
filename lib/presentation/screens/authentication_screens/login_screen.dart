@@ -1,30 +1,32 @@
-import 'package:doctor_appointment_app/core/utils/validators.dart';
-import 'package:doctor_appointment_app/presentation/screens/login_screen.dart';
-import 'package:doctor_appointment_app/presentation/widgets/phone_input_field.dart';
+import 'package:doctor_appointment_app/business_logic/state_management/doctor_information_bloc/doctor_information_event.dart';
+import 'package:doctor_appointment_app/core/app_colors/app_colors.dart';
+import 'package:doctor_appointment_app/presentation/screens/authentication_screens/sign_up.dart';
 import 'package:flutter/material.dart';
-import '../../core/app_colors/app_colors.dart';
-import '../../core/helper_widgets/custom_snackbar.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import '../../../business_logic/state_management/doctor_information_bloc/doctor_information_bloc.dart';
+import '../../../core/dependency_injection/injection_container.dart';
+import '../../../core/helper_widgets/custom_snackbar.dart';
+import '../../../core/utils/validators.dart';
+import '../../widgets/screen_wrapper/main_nav_screen.dart';
 
-class SignUp extends StatefulWidget {
-  const SignUp({super.key});
+class LoginScreen extends StatefulWidget {
+  const LoginScreen({super.key});
 
   @override
-  State<SignUp> createState() => _SignUpState();
+  State<LoginScreen> createState() => _LoginScreenState();
 }
 
-class _SignUpState extends State<SignUp> {
+class _LoginScreenState extends State<LoginScreen> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
-  final _phoneController = TextEditingController();
-
   final formKey = GlobalKey<FormState>();
   bool _obscurePassword = true;
+  bool _rememberMe = false;
 
   @override
   void dispose() {
     _emailController.dispose();
     _passwordController.dispose();
-    _phoneController.dispose();
     super.dispose();
   }
 
@@ -34,12 +36,11 @@ class _SignUpState extends State<SignUp> {
     final height = MediaQuery.of(context).size.height;
 
     return Scaffold(
-      //makes the keyboard act as another layer on top of the page, so that it doesn't screw the height of page or cause an overflow error.
       resizeToAvoidBottomInset: false,
       backgroundColor: AppColors.backgroundWhite,
       body: Padding(
         padding: EdgeInsets.symmetric(
-          vertical: height * 1 / 9,
+          vertical: height * 1 / 8,
           horizontal: width * 0.08,
         ),
         child: SingleChildScrollView(
@@ -47,7 +48,7 @@ class _SignUpState extends State<SignUp> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                'Create Account',
+                'Welcome Back',
                 style: TextStyle(
                   fontSize: 24,
                   fontWeight: FontWeight.w700,
@@ -56,9 +57,9 @@ class _SignUpState extends State<SignUp> {
               ),
               SizedBox(height: 15),
               Text(
-              "Sign up now and start exploring all that our"
-                  "app has to offer. We're excited to welcome"
-                  " you to our community!",
+                "We're excited to have you back, can't wait to "
+                "see what you've been up to since you last"
+                " logged in.",
                 style: TextStyle(
                   fontSize: 17,
                   fontWeight: FontWeight.w400,
@@ -66,7 +67,6 @@ class _SignUpState extends State<SignUp> {
                 ),
               ),
               const SizedBox(height: 25),
-              //form takes a key, and the key is declared BEFORE the build as GlobalKey<FormState>().
               Form(
                 key: formKey,
                 child: Column(
@@ -111,6 +111,7 @@ class _SignUpState extends State<SignUp> {
                           color: Color.fromRGBO(194, 194, 194, 1),
                           fontWeight: FontWeight.w500,
                         ),
+                        // By default, Flutter only shows the border color when the field is enabled but not focused.
                         enabledBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.all(Radius.circular(16)),
                           borderSide: BorderSide(
@@ -122,14 +123,13 @@ class _SignUpState extends State<SignUp> {
                           borderRadius: BorderRadius.all(Radius.circular(16)),
                           borderSide: BorderSide(
                             width: 1.5,
-                            color: Colors.blue,
+                            color: Colors.blue, // highlight color when focused
                           ),
                         ),
                         errorBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.all(Radius.circular(16)),
                           borderSide: BorderSide(width: 1.5, color: Colors.red),
                         ),
-                        // suffix icon for seeing or hiding the password text value, and toggling in a setState.
                         suffixIcon: IconButton(
                           icon: Icon(
                             _obscurePassword
@@ -147,8 +147,71 @@ class _SignUpState extends State<SignUp> {
                       validator: Validators.validatePassword,
                     ),
                     const SizedBox(height: 15),
-                    PhoneInputField(controller: _phoneController),
-                    const SizedBox(height: 15),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Row(
+                          children: [
+                            Checkbox(
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(4),
+                              ),
+                              value: _rememberMe,
+                              side: BorderSide(
+                                color: AppColors.greyText1,
+                                width: 2,
+                              ),
+                              fillColor: WidgetStateProperty.resolveWith<Color>(
+                                (Set<WidgetState> states) {
+                                  if (states.contains(WidgetState.selected)) {
+                                    return AppColors.boldPrimaryColor;
+                                  }
+                                  return Colors.white;
+                                },
+                              ),
+                              onChanged: (value) {
+                                setState(() {
+                                  _rememberMe = value!;
+                                });
+                              },
+                            ),
+                            Text(
+                              'Remember Me',
+                              style: TextStyle(
+                                fontSize: 14,
+                                color: AppColors.greyText1,
+                              ),
+                            ),
+                          ],
+                        ),
+                        TextButton(
+                          onPressed: () {
+                            if (formKey.currentState!.validate()) {
+                              SnackBarHelper.show(
+                                context,
+                                'New password has been sent to your mail!',
+                                type: SnackBarType.success,
+                              );
+                            } else {
+                              SnackBarHelper.show(
+                                context,
+                                'Please fix the errors in red.',
+                                type: SnackBarType.error,
+                              );
+                            }
+                          },
+                          child: Text(
+                            'Forgot Password?',
+                            style: TextStyle(
+                              color: AppColors.faintPrimaryColor,
+                              fontSize: 12,
+                              fontWeight: FontWeight.w400,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 25),
                     ElevatedButton(
                       style: ElevatedButton.styleFrom(
                         minimumSize: Size(width, 52),
@@ -162,8 +225,20 @@ class _SignUpState extends State<SignUp> {
                         if (formKey.currentState!.validate()) {
                           SnackBarHelper.show(
                             context,
-                            'Account created successfully!',
+                            'Login successful!',
                             type: SnackBarType.success,
+                          );
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) {
+                                return BlocProvider(
+                                  create: (context) =>
+                                      sl<DoctorBloc>()..add(LoadDoctorsList()),
+                                  child: MainNavigationScreen(),
+                                );
+                              },
+                            ),
                           );
                         } else {
                           SnackBarHelper.show(
@@ -173,9 +248,8 @@ class _SignUpState extends State<SignUp> {
                           );
                         }
                       },
-
                       child: Text(
-                        'Sign Up',
+                        'Login',
                         style: TextStyle(
                           fontWeight: FontWeight.w600,
                           fontSize: 16,
@@ -192,7 +266,7 @@ class _SignUpState extends State<SignUp> {
                           ),
                         ),
                         Text(
-                          "  Or sign up with  ",
+                          "  Or sign in with  ",
                           style: TextStyle(
                             fontSize: 12,
                             color: AppColors.greyText1,
@@ -222,7 +296,9 @@ class _SignUpState extends State<SignUp> {
                     ),
                     child: Padding(
                       padding: const EdgeInsets.all(10.0),
-                      child: Image.asset("assets/images/login_and_signup_screens/google_icon.png"),
+                      child: Image.asset(
+                        "assets/images/login_and_signup_screens/google_icon.png",
+                      ),
                     ),
                   ),
                   const SizedBox(width: 20),
@@ -236,7 +312,9 @@ class _SignUpState extends State<SignUp> {
                     ),
                     child: Padding(
                       padding: const EdgeInsets.all(10.0),
-                      child: Image.asset("assets/images/login_and_signup_screens/fb_icon.png"),
+                      child: Image.asset(
+                        "assets/images/login_and_signup_screens/fb_icon.png",
+                      ),
                     ),
                   ),
                   const SizedBox(width: 20),
@@ -250,7 +328,9 @@ class _SignUpState extends State<SignUp> {
                     ),
                     child: Padding(
                       padding: const EdgeInsets.all(10.0),
-                      child: Image.asset("assets/images/login_and_signup_screens/apple_icon.png"),
+                      child: Image.asset(
+                        "assets/images/login_and_signup_screens/apple_icon.png",
+                      ),
                     ),
                   ),
                 ],
@@ -265,8 +345,11 @@ class _SignUpState extends State<SignUp> {
                   child: Text.rich(
                     textAlign: TextAlign.center,
                     TextSpan(
-                      text: "By registering, you agree to our ",
-                      style: TextStyle(color: AppColors.greyText1, fontSize: 11),
+                      text: "By logging, you agree to our ",
+                      style: TextStyle(
+                        color: AppColors.greyText1,
+                        fontSize: 11,
+                      ),
                       children: [
                         TextSpan(
                           text: "Terms & Conditions ",
@@ -298,7 +381,7 @@ class _SignUpState extends State<SignUp> {
                   ),
                 ),
               ),
-              const SizedBox(height: 10),
+              const SizedBox(height: 20),
 
               Center(
                 child: GestureDetector(
@@ -307,17 +390,17 @@ class _SignUpState extends State<SignUp> {
                       context,
                       MaterialPageRoute(
                         builder: (_) {
-                          return const LoginScreen();
+                          return const SignUp();
                         },
                       ),
                     );
                   },
                   child: Text.rich(
                     TextSpan(
-                      text: 'Already have an account? ',
+                      text: 'Don\'t have an account yet? ',
                       children: [
                         TextSpan(
-                          text: "Login",
+                          text: "Sign Up",
                           style: TextStyle(
                             color: AppColors.boldPrimaryColor,
                             fontWeight: FontWeight.w400,
@@ -330,13 +413,7 @@ class _SignUpState extends State<SignUp> {
                       color: Colors.black,
                       fontWeight: FontWeight.w400,
                       fontSize: 11,
-                      height: 1.8,
                     ),
-                    // strutStyle: StrutStyle(
-                    //   forceStrutHeight: true,
-                    //   height: 1.8, // Ensures consistent height
-                    //   leading: 0.5, // Extra space for descenders
-                    // ),
                   ),
                 ),
               ),
