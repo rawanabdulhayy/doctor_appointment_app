@@ -6,10 +6,12 @@ import 'package:doctor_appointment_app/presentation/screens/splash_screen.dart';
 import 'package:doctor_appointment_app/presentation/widgets/screen_wrapper/main_nav_screen.dart';
 import 'package:doctor_appointment_app/presentation/widgets/screen_wrapper/three_page_booking_appointment.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
+import 'business_logic/state_management/auth_bloc/authentication_bloc.dart';
 import 'core/dependency_injection/injection_container.dart';
 
-void main() async{
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await init();
   runApp(const MyApp());
@@ -26,11 +28,18 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
       ),
-      home: LoginScreen(),
+      home: BlocProvider(
+        create: (context) => sl<AuthBloc>(),
+        child: LoginScreen(),
+      ),
     );
   }
 }
-//todo: navigation between pages
-//todo: working icons onPressed
-//todo: studying the implementation for the nav bar/screen wrapper/3_page_appointment_thing (appointment type selector, time slot selector and their bloc files, summary)
-//todo: looking up the needed-to-know info commented in all the dr info files. (screenshots taken)
+//todo: IMPLEMENT_ME: navigation between pages
+//todo: IMPLEMENT_ME: working icons onPressed
+
+//todo: REVIEW_ME: the nav bar files
+//todo: REVIEW_ME: the screen wrapper files
+//todo: REVIEW_ME: the 3_page_appointment_thing files (appointment type selector widget, time slot selector widget, summary screen, and their bloc files)
+
+//todo: REVIEW_ME & LOOK_ME_UPS: looking up the needed-to-know info commented in all the dr info files. (screenshots taken)

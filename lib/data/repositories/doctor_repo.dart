@@ -8,6 +8,7 @@ class DoctorRepositoryImpl implements DoctorRepositoryInterface {
 
   DoctorRepositoryImpl({required this.baseUrl})
     : dio = Dio(
+        // Dio automatically combines: Dio automatically combines baseUrl + endpoint
         BaseOptions(
           baseUrl: baseUrl,
           connectTimeout: const Duration(seconds: 30),
@@ -25,6 +26,7 @@ class DoctorRepositoryImpl implements DoctorRepositoryInterface {
 
       if (response.statusCode == 200) {
         ///Handling different data types
+
         // If API returns the doctor data directly
         if (response.data is Map<String, dynamic>) {
           return Doctor.fromJson(response.data);

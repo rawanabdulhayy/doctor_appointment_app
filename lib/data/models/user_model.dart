@@ -1,31 +1,44 @@
 import 'package:equatable/equatable.dart';
 
 class User extends Equatable {
-  final int id;
-  final String name;
+  final int? id; //nullable for new users, provided by the api.
+  final String? name;
   final String email;
   final String phone;
-  final String gender;
+  final String? gender;
 
   const User({
-    required this.id,
-    required this.name,
+    this.id,
+    this.name,
     required this.email,
     required this.phone,
-    required this.gender,
+    this.gender,
   });
 
   @override
   List<Object?> get props => [id, name, email, phone, gender];
 
-  factory User.fromJson(Map <String, dynamic> json){
+  factory User.fromJson(Map<String, dynamic> json) {
     return User(
-        id: json['id'] ?? 0,
-        name: json['name'] ?? '',
-        email: json['email'] ?? '',
-        phone: json['phone'] ?? '',
-        gender: json['gender'] ?? '',
+      id: json['id'] ? json['id'] : null,
+      name: json['name'] ?? _extractNameFromEmail(json['email']),
+      email: json['email'] ?? '',
+      phone: json['phone'] ?? '',
+      gender: _parseGender(json['gender']), // Parse both int and string
     );
+  }
+  static String? _parseGender(dynamic gender) {
+    if (gender == null) return null;
+    if (gender is String) return gender;
+    if (gender is int) {
+      return gender == 1 ? 'male' : 'female';
+    }
+    return gender.toString();
+  }
+
+  static String _extractNameFromEmail(String? email) {
+    if (email == null || email.isEmpty) return 'User';
+    return email.split('@').first;
   }
 
   Map<String, dynamic> toJson() {
@@ -34,8 +47,15 @@ class User extends Equatable {
       'name': name,
       'email': email,
       'phone': phone,
-      'gender': gender,
+      'gender': genderForApi,
     };
+  }
+
+  int? get genderForApi {
+    if (gender == null) return null;
+    if (gender == 'male' || gender == '1') return 1;
+    if (gender == 'female' || gender == '2') return 2;
+    return null;
   }
 
   // copyWith method
@@ -51,7 +71,7 @@ class User extends Equatable {
       name: name ?? this.name,
       email: email ?? this.email,
       phone: phone ?? this.phone,
-      gender: gender ?? this.gender,
+      gender: gender ?? this.gender.toString(),
     );
   }
 }
