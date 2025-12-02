@@ -19,6 +19,8 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   }) : super(AuthInitial()) {
     on<LoginEvent>(_onLoginEvent);
     on<SignUpEvent>(_onSignUpEvent);
+    on<ShowLoginScreen>(_onShowLoginScreen);
+    on<ShowSignupScreen>(_onShowSignupScreen);
   }
 
   Future<void> _onLoginEvent(LoginEvent event, Emitter<AuthState> emit) async {
@@ -38,10 +40,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     }
   }
 
-  Future<void> _onSignUpEvent(
-    SignUpEvent event,
-    Emitter<AuthState> emit,
-  ) async {
+  Future<void> _onSignUpEvent(SignUpEvent event, Emitter<AuthState> emit) async {
     emit(AuthLoading());
     try {
       final authResponse = await signUpUseCase(
@@ -63,5 +62,13 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       print('BLoC: Unexpected error during signup: $e');
       emit(AuthError(message: 'Signup failed: ${e.toString()}'));
     }
+  }
+
+  Future<void> _onShowLoginScreen (ShowLoginScreen event, Emitter<AuthState> emit) async{
+    emit(AuthShowLogin());
+  }
+
+  Future<void> _onShowSignupScreen (ShowSignupScreen event, Emitter<AuthState> emit) async{
+    emit(AuthShowSignup());
   }
 }

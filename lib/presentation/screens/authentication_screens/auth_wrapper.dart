@@ -1,3 +1,4 @@
+import 'package:doctor_appointment_app/presentation/screens/authentication_screens/sign_up.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../business_logic/state_management/auth_bloc/authentication_bloc.dart';
@@ -59,8 +60,24 @@ class AuthWrapper extends StatelessWidget {
           return MainNavigationScreen();
         }
 
-        // AuthInitial, AuthUnauthenticated, or AuthError
-        return LoginScreen();
+        // Handle different auth screens based on state
+        Widget screen;
+
+        if (state is AuthShowSignup) {
+          screen = const SignUp();
+        } else if (state is AuthShowLogin ||
+            state is AuthInitial ||
+            state is AuthError) {
+          screen = const LoginScreen();
+        } else {
+          screen = const LoginScreen(); // default
+        }
+
+        // Always wrap with BlocProvider
+        return BlocProvider.value(
+          value: context.read<AuthBloc>(),
+          child: screen,
+        );
       },
     );
   }

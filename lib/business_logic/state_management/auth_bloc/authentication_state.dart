@@ -17,3 +17,11 @@ class AuthError extends AuthState {
 
   AuthError({required this.message});
 }
+
+class AuthShowLogin extends AuthState {
+   AuthShowLogin();
+}
+
+class AuthShowSignup extends AuthState {
+  AuthShowSignup();
+}

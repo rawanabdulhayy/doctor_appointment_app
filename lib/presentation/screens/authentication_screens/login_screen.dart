@@ -416,14 +416,15 @@ class _LoginScreenState extends State<LoginScreen> {
                 Center(
                   child: GestureDetector(
                     onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) {
-                            return SignUp();
-                            },
-                        ),
-                      );
+                      // Navigator.push(
+                      //   context,
+                      //   MaterialPageRoute(
+                      //     builder: (_) {
+                      //       return SignUp();
+                      //       },
+                      //   ),
+                      // );
+                      context.read<AuthBloc>().add(ShowSignupScreen());
                     },
                     child: Text.rich(
                       TextSpan(

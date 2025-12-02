@@ -24,3 +24,7 @@ class SignUpEvent extends AuthEvent {
     required this.passwordConfirmation,
   });
 }
+
+class ShowLoginScreen extends AuthEvent {}
+
+class ShowSignupScreen extends AuthEvent {}
