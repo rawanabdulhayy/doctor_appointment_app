@@ -1,3 +1,5 @@
+import 'package:doctor_appointment_app/business_logic/state_management/doctor_information_bloc/doctor_information_bloc.dart';
+import 'package:doctor_appointment_app/presentation/screens/authentication_screens/auth_wrapper.dart';
 import 'package:doctor_appointment_app/presentation/screens/booking_appointment/date_and_time.dart';
 import 'package:doctor_appointment_app/presentation/screens/home_page.dart';
 import 'package:doctor_appointment_app/presentation/screens/authentication_screens/login_screen.dart';
@@ -28,9 +30,16 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
       ),
-      home: BlocProvider(
-        create: (context) => sl<AuthBloc>(),
-        child: LoginScreen(),
+      home: MultiBlocProvider(
+        providers: [
+          BlocProvider<AuthBloc>(
+            create: (context) => sl<AuthBloc>(),
+          ),
+          BlocProvider<DoctorBloc>(
+            create: (context) => sl<DoctorBloc>(),
+          ),
+        ],
+        child: AuthWrapper(),
       ),
     );
   }

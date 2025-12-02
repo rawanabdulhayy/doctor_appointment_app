@@ -41,11 +41,16 @@ class DoctorCard extends StatelessWidget {
           // Doctor image
           ClipRRect(
             borderRadius: BorderRadius.circular(12),
-            child: Image.asset(
+            child: Image.network(
               image,
               height: 80,
               width: 80,
-              fit: BoxFit.cover,
+              errorBuilder: (context, error, stackTrace) => Image.asset(
+                'assets/images/home_page/dr1.png',
+                height: 80,
+                width: 80,
+                fit: BoxFit.cover,
+              ),
             ),
           ),
           const SizedBox(width: 16),

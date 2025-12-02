@@ -3,8 +3,12 @@ import 'package:doctor_appointment_app/presentation/screens/recommendation_docto
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../business_logic/state_management/auth_bloc/authentication_bloc.dart';
+import '../../business_logic/state_management/auth_bloc/authentication_state.dart';
 import '../../business_logic/state_management/doctor_information_bloc/doctor_information_bloc.dart';
+import '../../business_logic/state_management/doctor_information_bloc/doctor_information_event.dart';
 import '../../business_logic/state_management/doctor_information_bloc/doctor_information_state.dart';
+import '../../core/helper_widgets/custom_snackbar.dart';
 import '../widgets/doctor_card.dart';
 import '../widgets/speciality_card.dart';
 
@@ -16,10 +20,16 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+
   @override
   Widget build(BuildContext context) {
     final width = MediaQuery.of(context).size.width;
     final height = MediaQuery.of(context).size.height;
+    final authState = context.read<AuthBloc>().state;
+    String userName = '';
+    if (authState is AuthSuccess) {
+      userName = authState.authResponse.user.name ?? 'User';
+    }
     return Scaffold(
       backgroundColor: Colors.white,
 
@@ -77,9 +87,9 @@ class _HomePageState extends State<HomePage> {
                   Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     crossAxisAlignment: CrossAxisAlignment.start,
-                    children: const [
+                    children: [
                       Text(
-                        'Hi Omar!',
+                        'Hi $userName!',
                         style: TextStyle(
                           fontSize: 20,
                           fontWeight: FontWeight.w700,
@@ -281,7 +291,20 @@ class _HomePageState extends State<HomePage> {
                   return Center(child: CircularProgressIndicator());
                 }
 
-                if (state is DoctorsListLoaded) {
+                else if (state is DoctorError) {
+                  return  Center(
+                    child: Padding(
+                      padding: const EdgeInsets.only(top: 60),
+                      child: Text(
+                        "Error occurred: ${state.message}",
+                        style: TextStyle(fontSize: 18, fontWeight: FontWeight.w300),
+                      ),
+                    ),
+                  );
+                }
+
+
+                else if (state is DoctorsListLoaded) {
                   final doctors = state.allDoctors;
 
                   if (doctors.isEmpty) {
@@ -300,9 +323,9 @@ class _HomePageState extends State<HomePage> {
                     shrinkWrap: true,
                     physics: NeverScrollableScrollPhysics(),
                     padding: const EdgeInsets.symmetric(horizontal: 16),
-                    itemCount: doctors.length,
+                    itemCount: state.allDoctors.length,
                     itemBuilder: (context, index) {
-                      final doctor = doctors[index];
+                      final doctor = state.allDoctors[index];
 
                       return DoctorCard(
                         image: doctor.photo,

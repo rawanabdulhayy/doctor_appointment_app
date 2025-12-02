@@ -1,112 +1,260 @@
 import 'package:dio/dio.dart';
+
 import '../../business_logic/repositaries_interfaces/dr_repo_interface.dart';
+import '../../core/exceptions.dart';
 import '../models/doctor_model.dart';
 
 class DoctorRepositoryImpl implements DoctorRepositoryInterface {
   final Dio dio;
   final String baseUrl;
+  String? _authToken;
 
-  DoctorRepositoryImpl({required this.baseUrl})
-    : dio = Dio(
-        // Dio automatically combines: Dio automatically combines baseUrl + endpoint
-        BaseOptions(
-          baseUrl: baseUrl,
-          connectTimeout: const Duration(seconds: 30),
-          receiveTimeout: const Duration(seconds: 30),
-        ),
-      );
+  DoctorRepositoryImpl({required this.baseUrl, String? authToken})
+      : _authToken = authToken,
+        dio = Dio(
+          BaseOptions(
+            baseUrl: baseUrl,
+            connectTimeout: const Duration(seconds: 30),
+            receiveTimeout: const Duration(seconds: 30),
+            validateStatus: (status) => true,
+          ),
+        ) {
+    // Add interceptors for logging
+    dio.interceptors.add(LogInterceptor(
+      request: true,
+      responseBody: true,
+      error: true,
+    ));
+  }
+
+  // Method to update the auth token
+  void setAuthToken(String token) {
+    _authToken = token;
+  }
+
+  // Method to clear the auth token
+  void clearAuthToken() {
+    _authToken = null;
+  }
+
+  // Helper method to get headers with auth token
+  Map<String, dynamic> _getHeaders() {
+    final headers = {
+      'Content-Type': 'application/json',
+      'Accept': 'application/json',
+    };
+
+    if (_authToken != null && _authToken!.isNotEmpty) {
+      headers['Authorization'] = 'Bearer $_authToken';
+    }
+
+    return headers;
+  }
 
   @override
   Future<Doctor> getDoctorById(String id) async {
     try {
+      print('Fetching doctor with ID: $id from $baseUrl/doctor/show/$id');
+      print('Using auth token: ${_authToken != null ? "Yes" : "No"}');
+
       final response = await dio.get(
-        '/doctors/$id',
-        options: Options(headers: {'Content-Type': 'application/json'}),
+        '/doctor/show/$id',
+        options: Options(headers: _getHeaders()),
       );
 
-      if (response.statusCode == 200) {
-        ///Handling different data types
+      print('Doctor response status: ${response.statusCode}');
+      print('Doctor response data: ${response.data}');
 
-        // If API returns the doctor data directly
-        if (response.data is Map<String, dynamic>) {
-          return Doctor.fromJson(response.data);
+      // Check if response is HTML (server error page)
+      if (_isHtmlResponse(response)) {
+        throw ServerException(
+          message: 'Server error: Internal server error (500)',
+          statusCode: 500,
+        );
+      }
+
+      // Handling successful response
+      if (response.statusCode == 200) {
+        final returnedResponseData = response.data;
+
+        // Simplified parsing logic
+        if (returnedResponseData is Map<String, dynamic>) {
+          // Handle direct doctor object
+          if (returnedResponseData.containsKey('id')) {
+            return Doctor.fromJson(returnedResponseData);
+          }
+          // Handle wrapped response: { "data": { ... } }
+          else if (returnedResponseData['data'] is Map<String, dynamic>) {
+            return Doctor.fromJson(returnedResponseData['data']);
+          }
+          // Handle wrapped response: { "data": [{ ... }] }
+          else if (returnedResponseData['data'] is List &&
+              returnedResponseData['data'].isNotEmpty) {
+            return Doctor.fromJson(returnedResponseData['data'][0]);
+          }
         }
-        // If API returns { "data": { ...doctor data... } }
-        else if (response.data is Map<String, dynamic> &&
-            response.data['data'] != null) {
-          return Doctor.fromJson(response.data['data']);
+
+        throw ServerException(message: 'Unexpected API response format for doctor');
+      }
+      // Handling not found errors (404)
+      else if (response.statusCode == 404) {
+        final message = _extractErrorMessage(response) ?? 'Doctor not found';
+        throw ServerException(message: message, statusCode: response.statusCode);
+      }
+      // Handling unauthorized errors (401)
+      else if (response.statusCode == 401) {
+        final message = _extractErrorMessage(response) ?? 'Unauthorized access - Please login again';
+        throw ServerException(message: message, statusCode: response.statusCode);
+      }
+      // Handling validation errors (422)
+      else if (response.statusCode == 422) {
+        final errors = response.data['data'] ?? response.data['errors'] ?? {};
+        String errorMessage = 'Failed to load doctor: ';
+
+        if (errors is Map) {
+          errors.forEach((field, messages) {
+            if (messages is List) {
+              errorMessage += '${messages.join(', ')}. ';
+            } else if (messages is String) {
+              errorMessage += '$messages. ';
+            }
+          });
+        } else if (errors is String) {
+          errorMessage += errors;
         }
-        // If API returns { "data": [{ ...doctor data... }] } (array)
-        else if (response.data is Map<String, dynamic> &&
-            response.data['data'] is List &&
-            response.data['data'].isNotEmpty) {
-          return Doctor.fromJson(response.data['data'][0]);
-        } else {
-          throw Exception('Invalid API response format');
-        }
-      } else {
-        throw Exception('Failed to load doctor: ${response.statusCode}');
+
+        throw ServerException(
+            message: errorMessage.trim(),
+            statusCode: response.statusCode
+        );
+      }
+      // Handling server errors (500)
+      else if (response.statusCode == 500) {
+        final message = _extractErrorMessage(response) ?? 'Internal server error';
+        throw ServerException(
+          message: 'Server error: $message',
+          statusCode: response.statusCode,
+        );
+      }
+      // Handling other errors
+      else {
+        final message = _extractErrorMessage(response) ?? 'Failed to load doctor';
+        throw ServerException(
+          message: '$message (Status: ${response.statusCode})',
+          statusCode: response.statusCode,
+        );
       }
     } on DioException catch (e) {
+      print('DioError: ${e.message}');
       if (e.response != null) {
-        throw Exception('Failed to load doctor: ${e.response?.statusCode}');
+        throw ServerException(
+          message: 'Failed to load doctor: ${e.response?.statusCode} - ${e.response?.statusMessage}',
+          statusCode: e.response?.statusCode,
+        );
       } else {
-        throw Exception('Network error: ${e.message}');
+        throw ConnectionException(message: 'Network error: ${e.message}');
       }
     } catch (e) {
-      throw Exception('Error fetching doctor: $e');
+      throw ServerException(message: 'Error fetching doctor: $e');
     }
   }
 
   @override
   Future<List<Doctor>> getDoctors() async {
-    // Implement actual API call to get doctors list
-    // For now, keeping your mock data structure
     try {
+      print('Fetching doctors from $baseUrl/doctor/index');
+      print('Using auth token: ${_authToken != null ? "Yes" : "No"}');
+
       final response = await dio.get(
-        '/doctors',
-        options: Options(headers: {'Content-Type': 'application/json'}),
+        '/doctor/index',
+        options: Options(headers: _getHeaders()),
       );
 
+      print('Doctors response status: ${response.statusCode}');
+      print('Doctors response data: ${response.data}');
+
+      // Check if response is HTML (server error page)
+      if (_isHtmlResponse(response)) {
+        throw ServerException(
+          message: 'Server error: Internal server error (500)',
+          statusCode: 500,
+        );
+      }
+
+      // Handling successful response
       if (response.statusCode == 200) {
-        if (response.data is List) {
-          return (response.data as List)
-              .map((e) => Doctor.fromJson(e))
-              .toList();
-        } else if (response.data is Map<String, dynamic> &&
-            response.data['data'] is List) {
-          return (response.data['data'] as List)
-              .map((e) => Doctor.fromJson(e))
-              .toList();
+        final returnedResponseData = response.data;
+        List<dynamic> doctorsList = [];
+
+        if (returnedResponseData is List) {
+          doctorsList = returnedResponseData;
+        } else if (returnedResponseData is Map<String, dynamic> &&
+            returnedResponseData['data'] is List) {
+          doctorsList = returnedResponseData['data'];
         } else {
-          throw Exception('Invalid API response format for doctors list');
+          throw ServerException(message: 'Unexpected API response format for doctors list');
         }
-      } else {
-        throw Exception('Failed to load doctors: ${response.statusCode}');
+
+        return doctorsList.map((doctorJson) {
+          if (doctorJson is Map<String, dynamic>) {
+            return Doctor.fromJson(doctorJson);
+          } else {
+            throw ServerException(message: 'Invalid doctor item format: $doctorJson');
+          }
+        }).toList();
+      }
+      // Handling unauthorized errors (401)
+      else if (response.statusCode == 401) {
+        final message = _extractErrorMessage(response) ?? 'Unauthorized access - Please login again';
+        throw ServerException(message: message, statusCode: response.statusCode);
+      }
+      // Handling server errors (500)
+      else if (response.statusCode == 500) {
+        final message = _extractErrorMessage(response) ?? 'Internal server error';
+        throw ServerException(
+          message: 'Server error: $message',
+          statusCode: response.statusCode,
+        );
+      }
+      // Handling other errors
+      else {
+        final message = _extractErrorMessage(response) ?? 'Failed to load doctors';
+        throw ServerException(
+          message: '$message (Status: ${response.statusCode})',
+          statusCode: response.statusCode,
+        );
       }
     } on DioException catch (e) {
+      print('DioError: ${e.message}');
       if (e.response != null) {
-        throw Exception('Failed to load doctors: ${e.response?.statusCode}');
+        throw ServerException(
+          message: 'Failed to load doctors: ${e.response?.statusCode} - ${e.response?.statusMessage}',
+          statusCode: e.response?.statusCode,
+        );
       } else {
-        throw Exception('Network error: ${e.message}');
+        throw ConnectionException(message: 'Network error: ${e.message}');
       }
     } catch (e) {
-      throw Exception('Error fetching doctors: $e');
+      throw ServerException(message: 'Error fetching doctors: $e');
     }
   }
-}
 
-// Alternative: If using Firebase
-// Future<Doctor> getDoctorFromFirebase(String id) async {
-//   final doc = await FirebaseFirestore.instance
-//       .collection('doctors')
-//       .doc(id)
-//       .get();
-//
-//   if (doc.exists) {
-//     return Doctor.fromMap(doc.data()!, doc.id);
-//   } else {
-//     throw Exception('Doctor not found');
-//   }
-// }
-//}
+  // Helper method to check if response is HTML
+  bool _isHtmlResponse(Response response) {
+    final contentType = response.headers.value('content-type');
+    return contentType?.contains('text/html') == true ||
+        (response.data is String && (response.data as String).contains('<!DOCTYPE html>'));
+  }
+
+  // Helper method to extract error message from response
+  String? _extractErrorMessage(Response response) {
+    if (response.data is Map) {
+      return response.data['message'] ??
+          response.data['error'] ??
+          response.data['detail'];
+    } else if (response.data is String) {
+      return response.data;
+    }
+    return null;
+  }
+}

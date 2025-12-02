@@ -5,5 +5,6 @@ class ConnectionException implements Exception {
 
 class ServerException implements Exception {
   final String message;
-  ServerException({required this.message});
+  final int? statusCode;
+  ServerException({required this.message, this.statusCode});
 }

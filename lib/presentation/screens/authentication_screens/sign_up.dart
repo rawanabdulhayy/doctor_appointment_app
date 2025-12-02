@@ -48,33 +48,24 @@ class _SignUpState extends State<SignUp> {
       backgroundColor: AppColors.backgroundWhite,
       body: BlocListener<AuthBloc, AuthState>(
         listener: (context, state) {
-          if (state is AuthLoading) {
-            // Show loading dialog
-            showDialog(
-              context: context,
-              barrierDismissible: false,
-              builder: (context) =>
-                  const Center(child: CircularProgressIndicator()),
-            );
-          } else if (state is AuthSuccess) {
-            // Hide loading and navigate
-            Navigator.pop(context); // Close loading dialog
-            SnackBarHelper.show(
-              context,
-              'Account created successfully!',
-              type: SnackBarType.success,
-            );
-            // Navigate to main screen or next step
-            Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(
-                builder: (_) => BlocProvider(
-                  create: (context) => sl<DoctorBloc>()..add(LoadDoctorsList()),
-                  child: MainNavigationScreen(),
-                ),
-              ),
-            );
-          } else if (state is AuthError) {
+          // if (state is AuthLoading) {
+          //   // Show loading dialog
+          //   showDialog(
+          //     context: context,
+          //     barrierDismissible: false,
+          //     builder: (context) =>
+          //         const Center(child: CircularProgressIndicator()),
+          //   );
+          // } else if (state is AuthSuccess) {
+          //   // Hide loading and navigate
+          //   Navigator.pop(context); // Close loading dialog
+          //   SnackBarHelper.show(
+          //     context,
+          //     'Account created successfully!',
+          //     type: SnackBarType.success,
+          //   );
+          // }
+          if (state is AuthError) {
             // Hide loading and show error
             Navigator.pop(context); // Close loading dialog
             SnackBarHelper.show(
@@ -519,10 +510,7 @@ class _SignUpState extends State<SignUp> {
                         context,
                         MaterialPageRoute(
                           builder: (_) {
-                            return BlocProvider(
-                              create: (context) => sl<AuthBloc>(),
-                              child: const LoginScreen(),
-                            );
+                            return const LoginScreen();
                           },
                         ),
                       );

@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:doctor_appointment_app/business_logic/repositaries_interfaces/auth_repo_interface.dart';
 import 'package:doctor_appointment_app/business_logic/usecases/dr_info_usecases/get_dr_by_id_usecase.dart';
+import 'package:doctor_appointment_app/core/dependency_injection/token_provider.dart';
 import 'package:doctor_appointment_app/data/repositories/doctor_repo.dart';
 import 'package:get_it/get_it.dart';
 import '../../business_logic/repositaries_interfaces/dr_repo_interface.dart';
@@ -20,6 +21,8 @@ Future<void> init() async {
 }
 
 Future<void> setUpServices() async {
+  // Token provider (singleton)
+  sl.registerLazySingleton<AuthTokenProvider>(() => AuthTokenProvider());
   //backend handler
   sl.registerLazySingleton<Dio>(() => Dio());
 }
@@ -31,7 +34,10 @@ Future<void> setUpRepositories() async {
   );
   // Doctor Repository
   sl.registerLazySingleton<DoctorRepositoryInterface>(
-    () => DoctorRepositoryImpl(baseUrl: 'https://vcare.integration25.com/api'),
+    () => DoctorRepositoryImpl(
+      baseUrl: 'https://vcare.integration25.com/api',
+      authToken: sl<AuthTokenProvider>().token,
+    ),
   );
 }
 
@@ -59,6 +65,7 @@ Future<void> setUpBlocs() async {
     () => AuthBloc(
       loginUseCase: sl<LoginUseCase>(),
       signUpUseCase: sl<SignUpUseCase>(),
+      tokenProvider: sl<AuthTokenProvider>(),
     ),
   );
 }

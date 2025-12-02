@@ -1,3 +1,4 @@
+import 'package:dio/dio.dart';
 import 'package:doctor_appointment_app/business_logic/repositaries_interfaces/dr_repo_interface.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../data/models/doctor_model.dart';
@@ -28,11 +29,32 @@ class DoctorBloc extends Bloc<DoctorEvent, DoctorState> {
     }
   }
 
+  // void _onLoadDoctors(LoadDoctorsList event, Emitter<DoctorState> emit) async {
+  //   emit(DoctorFilterLoading());
+  //
+  //   try {
+  //     final doctors = await repository.getDoctors();
+  //
+  //     if (doctors.isEmpty) {
+  //       emit(DoctorsListLoaded(
+  //         allDoctors: [],
+  //         filteredDoctors: [],
+  //       ));
+  //     } else {
+  //       emit(DoctorsListLoaded(
+  //         allDoctors: doctors,
+  //         filteredDoctors: doctors,
+  //       ));
+  //     }
+  //   } catch (e) {
+  //     emit(DoctorError('Failed to load doctors: ${e.toString()}'));
+  //   }
+  // }
+
   void _onLoadDoctors(LoadDoctorsList event, Emitter<DoctorState> emit) async {
     emit(DoctorFilterLoading());
 
     try {
-      // final doctors = _getMockDoctors();
       final doctors = await repository.getDoctors();
 
       if (doctors.isEmpty) {
@@ -47,7 +69,19 @@ class DoctorBloc extends Bloc<DoctorEvent, DoctorState> {
         ));
       }
     } catch (e) {
-      emit(DoctorError('Failed to load doctors: ${e.toString()}'));
+      // More detailed error information
+      final errorMessage = e.toString();
+
+      // Check if it's a DioError for more details
+      if (e is DioException) {
+        if (e.response != null) {
+          emit(DoctorError('HTTP ${e.response!.statusCode}: ${e.response!.statusMessage}'));
+        } else {
+          emit(DoctorError('Network error: ${e.message}'));
+        }
+      } else {
+        emit(DoctorError('Failed to load doctors: $errorMessage'));
+      }
     }
   }
 

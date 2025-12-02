@@ -43,30 +43,23 @@ class _LoginScreenState extends State<LoginScreen> {
       backgroundColor: AppColors.backgroundWhite,
       body: BlocListener<AuthBloc, AuthState>(
         listener: (context, state) {
-          if (state is AuthLoading) {
-            showDialog(
-              context: context,
-              barrierDismissible: false,
-              builder: (context) =>
-                  const Center(child: CircularProgressIndicator()),
-            );
-          } else if (state is AuthSuccess) {
-            Navigator.pop(context);
-            SnackBarHelper.show(
-              context,
-              'Login successful!',
-              type: SnackBarType.success,
-            );
-            Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(
-                builder: (_) => BlocProvider(
-                  create: (context) => sl<DoctorBloc>()..add(LoadDoctorsList()),
-                  child: MainNavigationScreen(),
-                ),
-              ),
-            );
-          } else if (state is AuthError) {
+          // if (state is AuthLoading) {
+          //   showDialog(
+          //     context: context,
+          //     barrierDismissible: false,
+          //     builder: (context) =>
+          //         const Center(child: CircularProgressIndicator()),
+          //   );
+          // }
+          // else if (state is AuthSuccess) {
+          //   Navigator.pop(context);
+          //   SnackBarHelper.show(
+          //     context,
+          //     'Login successful!',
+          //     type: SnackBarType.success,
+          //   );
+          // }
+           if (state is AuthError) {
             Navigator.pop(context);
             SnackBarHelper.show(
               context,
@@ -427,10 +420,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         context,
                         MaterialPageRoute(
                           builder: (_) {
-                            return BlocProvider(
-                              create: (context) => sl<AuthBloc>(),
-                              child: SignUp(),
-                            );
+                            return SignUp();
                             },
                         ),
                       );
