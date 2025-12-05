@@ -72,3 +72,16 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     emit(AuthShowSignup());
   }
 }
+
+// Current AuthBloc stores:
+// What's Currently Stored
+// 1. In the BLoC State (AuthSuccess)
+// emit(AuthSuccess(authResponse: authResponse));
+// When login/signup succeeds, the state contains:
+//
+// authResponse.token - JWT token
+// authResponse.user - User object (id, name, email, phone, gender)
+// authResponse.status, authResponse.code, authResponse.message
+//
+// 2. In the TokenProvider
+// tokenProvider.setToken(authResponse.token);

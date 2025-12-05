@@ -1,4 +1,5 @@
 import 'package:doctor_appointment_app/core/app_colors/app_colors.dart';
+import 'package:doctor_appointment_app/presentation/screens/update_profile_screen.dart';
 import 'package:flutter/material.dart';
 
 class ProfileScreen extends StatefulWidget {
@@ -69,7 +70,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             ),
           ),
           Positioned(
-            top: (height * 0.25) - 150,
+            top: (height * 0.25) - 225,
             left: (width / 2) - 60,
             child: Stack(
               children: [
@@ -89,7 +90,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 ),
                 Positioned(
                   bottom: height * 0.01 - 10, // 1% of screen height
-                  right: width * 0.02,   // 2% of screen width
+                  right: width * 0.02, // 2% of screen width
                   child: Container(
                     width: 31,
                     height: 31,
@@ -98,7 +99,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       shape: BoxShape.circle,
                       border: Border.all(color: Colors.white, width: 3),
                     ),
-                    child: Icon(Icons.edit_outlined, color: AppColors.boldPrimaryColor, size: 16),
+                    child: Icon(
+                      Icons.edit_outlined,
+                      color: AppColors.boldPrimaryColor,
+                      size: 16,
+                    ),
                   ),
                 ),
               ],
@@ -106,7 +111,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           ),
           // Content using Column
           Positioned(
-            top: (height * 0.25) + 10, // Start below the circle
+            top: (height * 0.15) , // Start below the circle
             left: 0,
             right: 0,
             child: Column(
@@ -119,6 +124,34 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 Text(
                   'omarahmed14@gmail.com',
                   style: TextStyle(fontSize: 16, color: Colors.grey),
+                ),
+                SizedBox(height: 24),
+                ElevatedButton(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) {
+                          return UpdateProfileScreen();
+                        },
+                      ),
+                    );
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.boldPrimaryColor,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                    elevation: 0,
+                  ),
+                  child: Text(
+                    'Edit Profile',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.white,
+                    ),
+                  ),
                 ),
                 SizedBox(height: 24),
                 Padding(
