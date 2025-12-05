@@ -238,7 +238,282 @@ class DoctorRepositoryImpl implements DoctorRepositoryInterface {
       throw ServerException(message: 'Error fetching doctors: $e');
     }
   }
+  @override
+  Future<List<Doctor>> getFilteredDoctors({
+    String searchQuery = '',
+    int? specializationId,
+    int? cityId,
+  }) async {
+    try {
+      // Determine which endpoint to use based on parameters
+      String endpoint;
+      Map<String, dynamic> queryParameters = {};
+      Map<String, dynamic>? requestData;
 
+      if (searchQuery.isNotEmpty) {
+        // Use search endpoint
+        endpoint = '/doctor/doctor-search';
+        queryParameters['name'] = searchQuery;
+        print('Searching doctors by name: $searchQuery');
+      } else if (specializationId != null || cityId != null) {
+        // Use filter endpoint
+        endpoint = '/doctor/doctor-filter';
+        if (specializationId != null) {
+          queryParameters['specialization'] = specializationId;
+          print('Filtering by specialization: $specializationId');
+        }
+        if (cityId != null) {
+          queryParameters['city'] = cityId;
+          print('Filtering by city: $cityId');
+        }
+      } else {
+        // No filters, return all doctors
+        return await getDoctors();
+      }
+
+      print('Calling endpoint: $endpoint');
+      print('Query parameters: $queryParameters');
+
+      final response = await dio.get(
+        endpoint,
+        queryParameters: queryParameters,
+        options: Options(headers: _getHeaders()),
+      );
+
+      print('Filtered doctors response status: ${response.statusCode}');
+      print('Filtered doctors response data: ${response.data}');
+
+      // Check if response is HTML (server error page)
+      if (_isHtmlResponse(response)) {
+        throw ServerException(
+          message: 'Server error: Internal server error (500)',
+          statusCode: 500,
+        );
+      }
+
+      // Handling successful response
+      if (response.statusCode == 200) {
+        final returnedResponseData = response.data;
+        List<dynamic> doctorsList = [];
+
+        if (returnedResponseData is List) {
+          doctorsList = returnedResponseData;
+        } else if (returnedResponseData is Map<String, dynamic> &&
+            returnedResponseData['data'] is List) {
+          doctorsList = returnedResponseData['data'];
+        } else {
+          throw ServerException(
+              message: 'Unexpected API response format for filtered doctors');
+        }
+
+        return doctorsList.map((doctorJson) {
+          if (doctorJson is Map<String, dynamic>) {
+            return Doctor.fromJson(doctorJson);
+          } else {
+            throw ServerException(
+                message: 'Invalid doctor item format: $doctorJson');
+          }
+        }).toList();
+      }
+      // Handling unauthorized errors (401)
+      else if (response.statusCode == 401) {
+        final message = _extractErrorMessage(response) ??
+            'Unauthorized access - Please login again';
+        throw ServerException(
+            message: message, statusCode: response.statusCode);
+      }
+      // Handling server errors (500)
+      else if (response.statusCode == 500) {
+        final message =
+            _extractErrorMessage(response) ?? 'Internal server error';
+        throw ServerException(
+          message: 'Server error: $message',
+          statusCode: response.statusCode,
+        );
+      }
+      // Handling other errors
+      else {
+        final message = _extractErrorMessage(response) ?? 'Failed to load filtered doctors';
+        throw ServerException(
+          message: '$message (Status: ${response.statusCode})',
+          statusCode: response.statusCode,
+        );
+      }
+    } on DioException catch (e) {
+      print('DioError in getFilteredDoctors: ${e.message}');
+      print('DioError type: ${e.type}');
+      print('DioError response: ${e.response?.data}');
+
+      if (e.response != null) {
+        throw ServerException(
+          message:
+          'Failed to load filtered doctors: ${e.response?.statusCode} - ${e.response?.statusMessage}',
+          statusCode: e.response?.statusCode,
+        );
+      } else {
+        throw ConnectionException(message: 'Network error: ${e.message}');
+      }
+    } catch (e) {
+      print('Error in getFilteredDoctors: $e');
+      throw ServerException(message: 'Error fetching filtered doctors: $e');
+    }
+  }
+
+  @override
+  Future<List<Specialization>> getSpecializations() async {
+    try {
+      print('Fetching specializations from $baseUrl/specialization/index');
+
+      final response = await dio.get(
+        '/specialization/index',
+        options: Options(headers: _getHeaders()),
+      );
+
+      print('Specializations response status: ${response.statusCode}');
+
+      // Check if response is HTML (server error page)
+      if (_isHtmlResponse(response)) {
+        throw ServerException(
+          message: 'Server error: Internal server error (500)',
+          statusCode: 500,
+        );
+      }
+
+      if (response.statusCode == 200) {
+        final returnedResponseData = response.data;
+        List<dynamic> specializationsList = [];
+
+        if (returnedResponseData is List) {
+          specializationsList = returnedResponseData;
+        } else if (returnedResponseData is Map<String, dynamic> &&
+            returnedResponseData['data'] is List) {
+          specializationsList = returnedResponseData['data'];
+        } else {
+          throw ServerException(
+              message: 'Unexpected API response format for specializations');
+        }
+
+        return specializationsList.map((specJson) {
+          if (specJson is Map<String, dynamic>) {
+            return Specialization.fromJson(specJson);
+          } else {
+            throw ServerException(
+                message: 'Invalid specialization item format: $specJson');
+          }
+        }).toList();
+      } else if (response.statusCode == 401) {
+        final message = _extractErrorMessage(response) ??
+            'Unauthorized access - Please login again';
+        throw ServerException(
+            message: message, statusCode: response.statusCode);
+      } else if (response.statusCode == 500) {
+        final message =
+            _extractErrorMessage(response) ?? 'Internal server error';
+        throw ServerException(
+          message: 'Server error: $message',
+          statusCode: response.statusCode,
+        );
+      } else {
+        final message = _extractErrorMessage(response) ?? 'Failed to load specializations';
+        throw ServerException(
+          message: '$message (Status: ${response.statusCode})',
+          statusCode: response.statusCode,
+        );
+      }
+    } on DioException catch (e) {
+      print('DioError in getSpecializations: ${e.message}');
+      if (e.response != null) {
+        throw ServerException(
+          message:
+          'Failed to load specializations: ${e.response?.statusCode} - ${e.response?.statusMessage}',
+          statusCode: e.response?.statusCode,
+        );
+      } else {
+        throw ConnectionException(message: 'Network error: ${e.message}');
+      }
+    } catch (e) {
+      print('Error in getSpecializations: $e');
+      throw ServerException(message: 'Error fetching specializations: $e');
+    }
+  }
+
+  @override
+  Future<List<City>> getCities() async {
+    try {
+      print('Fetching cities from $baseUrl/city/index');
+
+      final response = await dio.get(
+        '/city/index',
+        options: Options(headers: _getHeaders()),
+      );
+
+      print('Cities response status: ${response.statusCode}');
+
+      // Check if response is HTML (server error page)
+      if (_isHtmlResponse(response)) {
+        throw ServerException(
+          message: 'Server error: Internal server error (500)',
+          statusCode: 500,
+        );
+      }
+
+      if (response.statusCode == 200) {
+        final returnedResponseData = response.data;
+        List<dynamic> citiesList = [];
+
+        if (returnedResponseData is List) {
+          citiesList = returnedResponseData;
+        } else if (returnedResponseData is Map<String, dynamic> &&
+            returnedResponseData['data'] is List) {
+          citiesList = returnedResponseData['data'];
+        } else {
+          throw ServerException(
+              message: 'Unexpected API response format for cities');
+        }
+
+        return citiesList.map((cityJson) {
+          if (cityJson is Map<String, dynamic>) {
+            return City.fromJson(cityJson);
+          } else {
+            throw ServerException(
+                message: 'Invalid city item format: $cityJson');
+          }
+        }).toList();
+      } else if (response.statusCode == 401) {
+        final message = _extractErrorMessage(response) ??
+            'Unauthorized access - Please login again';
+        throw ServerException(
+            message: message, statusCode: response.statusCode);
+      } else if (response.statusCode == 500) {
+        final message =
+            _extractErrorMessage(response) ?? 'Internal server error';
+        throw ServerException(
+          message: 'Server error: $message',
+          statusCode: response.statusCode,
+        );
+      } else {
+        final message = _extractErrorMessage(response) ?? 'Failed to load cities';
+        throw ServerException(
+          message: '$message (Status: ${response.statusCode})',
+          statusCode: response.statusCode,
+        );
+      }
+    } on DioException catch (e) {
+      print('DioError in getCities: ${e.message}');
+      if (e.response != null) {
+        throw ServerException(
+          message:
+          'Failed to load cities: ${e.response?.statusCode} - ${e.response?.statusMessage}',
+          statusCode: e.response?.statusCode,
+        );
+      } else {
+        throw ConnectionException(message: 'Network error: ${e.message}');
+      }
+    } catch (e) {
+      print('Error in getCities: $e');
+      throw ServerException(message: 'Error fetching cities: $e');
+    }
+  }
   // Helper method to check if response is HTML
   bool _isHtmlResponse(Response response) {
     final contentType = response.headers.value('content-type');

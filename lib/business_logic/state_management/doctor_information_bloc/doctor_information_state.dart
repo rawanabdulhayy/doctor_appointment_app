@@ -8,6 +8,7 @@ abstract class DoctorState extends Equatable {
   @override
   List<Object?> get props => [];
 }
+
 class DoctorInfoInitial extends DoctorState {}
 
 class DoctorFilterInitial extends DoctorState {}
@@ -37,15 +38,19 @@ class DoctorsListLoaded extends DoctorState {
   //but I need more on that topic and usage
   final List<Doctor> allDoctors;
   final List<Doctor> filteredDoctors;
-  final String? selectedSpeciality;
+
+  ///this too should be a selected id?
+  final int? selectedSpecializationId;
+  final int? selectedCityId;
   final int? selectedRating;
   final String searchQuery;
 
   const DoctorsListLoaded({
     required this.allDoctors,
     required this.filteredDoctors,
-    this.selectedSpeciality,
+    this.selectedSpecializationId,
     this.selectedRating,
+    this.selectedCityId,
     this.searchQuery = '',
   });
 
@@ -53,8 +58,9 @@ class DoctorsListLoaded extends DoctorState {
   List<Object?> get props => [
     allDoctors,
     filteredDoctors,
-    selectedSpeciality,
+    selectedSpecializationId,
     selectedRating,
+    selectedCityId,
     searchQuery,
   ];
 
@@ -63,21 +69,26 @@ class DoctorsListLoaded extends DoctorState {
   DoctorsListLoaded copyWith({
     List<Doctor>? allDoctors,
     List<Doctor>? filteredDoctors,
-    String? selectedSpeciality,
+    int? selectedSpecializationId,
     int? selectedRating,
     String? searchQuery,
+    int? selectedCityId,
     bool clearSpeciality = false,
     bool clearRating = false,
+    bool clearCity = false,
   }) {
     return DoctorsListLoaded(
       allDoctors: allDoctors ?? this.allDoctors,
       filteredDoctors: filteredDoctors ?? this.filteredDoctors,
-      selectedSpeciality: clearSpeciality
+      selectedSpecializationId: clearSpeciality
           ? null
-          : (selectedSpeciality ?? this.selectedSpeciality),
+          : (selectedSpecializationId ?? this.selectedSpecializationId),
       selectedRating: clearRating
           ? null
           : (selectedRating ?? this.selectedRating),
+      selectedCityId: clearCity
+          ? null
+          : (selectedCityId ?? this.selectedCityId),
       searchQuery: searchQuery ?? this.searchQuery,
     );
   }
@@ -101,4 +112,68 @@ class DoctorError extends DoctorState {
   List<Object> get props => [message];
 }
 
+class FilterError extends DoctorState {
+  final String message;
 
+  const FilterError(this.message);
+
+  @override
+  List<Object> get props => [message];
+}
+
+// For loading filter data (specializations, cities)
+class FilterDataLoading extends DoctorState {}
+
+class FilterDataLoaded extends DoctorState {
+  final List<Specialization> specializations;
+  final List<City> cities;
+
+  const FilterDataLoaded({required this.specializations, required this.cities});
+
+  @override
+  List<Object?> get props => [specializations, cities];
+}
+
+// For when filters are being applied (API call)
+class DoctorsFiltering extends DoctorState {}
+
+class DoctorsFiltered extends DoctorState {
+  final List<Doctor> filteredDoctors;
+  final int? selectedSpecializationId;
+  final int? selectedRating;
+  final int? selectedCityId;
+  final String searchQuery;
+
+  const DoctorsFiltered({
+    required this.filteredDoctors,
+    this.selectedSpecializationId,
+    this.selectedRating,
+    this.selectedCityId,
+    this.searchQuery = '',
+  });
+
+  @override
+  List<Object?> get props => [
+    filteredDoctors,
+    selectedSpecializationId,
+    selectedRating,
+    selectedCityId,
+    searchQuery,
+  ];
+}
+
+// For when search is being performed (API call)
+class DoctorsSearching extends DoctorState {}
+
+class DoctorsSearched extends DoctorState {
+  final List<Doctor> searchResults;
+  final String searchQuery;
+
+  const DoctorsSearched({
+    required this.searchResults,
+    required this.searchQuery,
+  });
+
+  @override
+  List<Object?> get props => [searchResults, searchQuery];
+}

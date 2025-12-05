@@ -17,14 +17,20 @@ class LoadDoctorDetails extends DoctorEvent {
 
 class LoadDoctorsList extends DoctorEvent {}
 
-class ApplyFilter extends DoctorEvent {
-  final String? speciality;
-  final int? rating;
+class LoadFilterData extends DoctorEvent {
+  const LoadFilterData();
+}
 
-  const ApplyFilter({this.speciality, this.rating});
+class ApplyFilter extends DoctorEvent {
+  final int? specializationId;
+  final int? rating;
+  final int? cityId;
+  final bool isLocalFilter; // Whether to filter locally or call API
+
+  const ApplyFilter({this.specializationId, this.rating, this.cityId, this.isLocalFilter = false});
 
   @override
-  List<Object?> get props => [speciality, rating];
+  List<Object?> get props => [specializationId, rating, cityId, isLocalFilter];
 }
 
 class SearchDoctors extends DoctorEvent {
@@ -37,11 +43,12 @@ class SearchDoctors extends DoctorEvent {
   //         searchQuery: event.query, //passed from the UI
   //       ));
   final String query;
+  final bool isLocalSearch; // Whether to search locally or call API
 
-  const SearchDoctors(this.query);
+  const SearchDoctors(this.query, {this.isLocalSearch = false});
 
   @override
-  List<Object> get props => [query];
+  List<Object> get props => [query, isLocalSearch];
 }
 
 class ClearFilters extends DoctorEvent {}

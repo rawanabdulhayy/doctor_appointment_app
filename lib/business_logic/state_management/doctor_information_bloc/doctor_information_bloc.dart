@@ -9,16 +9,27 @@ class DoctorBloc extends Bloc<DoctorEvent, DoctorState> {
   //todo: for clean architecture, have the bloc deal with the useCase (which implicitly deals with the interface) not the repo interface.
   final DoctorRepositoryInterface repository;
 
+  List<Specialization> _specializationsCache = [];
+  List<City> _citiesCache = [];
+  List<Doctor> _allDoctorsCache = [];
+  bool _filterDataLoaded = false;
+
+  List<Specialization> get specializationsCache => _specializationsCache;
+  List<City> get citiesCache => _citiesCache;
+  bool get filterDataLoaded => _filterDataLoaded;
+
   DoctorBloc({required this.repository}) : super(DoctorFilterInitial()) {
     on<LoadDoctorDetails>(_onLoadDoctorDetails);
     on<LoadDoctorsList>(_onLoadDoctors);
+
     on<ApplyFilter>(_onApplyFilter);
     on<SearchDoctors>(_onSearchDoctors);
     on<ClearFilters>(_onClearFilters);
+
+    on<LoadFilterData>(_onLoadFilterData);
   }
 
-  Future<void> _onLoadDoctorDetails(LoadDoctorDetails event,
-      Emitter<DoctorState> emit,) async {
+  Future<void> _onLoadDoctorDetails(LoadDoctorDetails event, Emitter<DoctorState> emit,) async {
     emit(DoctorLoading());
 
     try {
@@ -29,43 +40,30 @@ class DoctorBloc extends Bloc<DoctorEvent, DoctorState> {
     }
   }
 
-  // void _onLoadDoctors(LoadDoctorsList event, Emitter<DoctorState> emit) async {
-  //   emit(DoctorFilterLoading());
-  //
-  //   try {
-  //     final doctors = await repository.getDoctors();
-  //
-  //     if (doctors.isEmpty) {
-  //       emit(DoctorsListLoaded(
-  //         allDoctors: [],
-  //         filteredDoctors: [],
-  //       ));
-  //     } else {
-  //       emit(DoctorsListLoaded(
-  //         allDoctors: doctors,
-  //         filteredDoctors: doctors,
-  //       ));
-  //     }
-  //   } catch (e) {
-  //     emit(DoctorError('Failed to load doctors: ${e.toString()}'));
-  //   }
-  // }
-
   void _onLoadDoctors(LoadDoctorsList event, Emitter<DoctorState> emit) async {
     emit(DoctorFilterLoading());
 
     try {
       final doctors = await repository.getDoctors();
+      _allDoctorsCache = doctors;
 
       if (doctors.isEmpty) {
         emit(DoctorsListLoaded(
           allDoctors: [],
           filteredDoctors: [],
+          selectedSpecializationId: null,
+          selectedRating: null,
+          selectedCityId: null,
+          searchQuery: '',
         ));
       } else {
         emit(DoctorsListLoaded(
           allDoctors: doctors,
           filteredDoctors: doctors,
+          selectedSpecializationId: null,
+          selectedRating: null,
+          selectedCityId: null,
+          searchQuery: '',
         ));
       }
     } catch (e) {
@@ -85,71 +83,177 @@ class DoctorBloc extends Bloc<DoctorEvent, DoctorState> {
     }
   }
 
+  // Future<void> _onLoadFilterData(
+  //     LoadFilterData event,
+  //     Emitter<DoctorState> emit,
+  //     ) async {
+  //   // Check if already loaded
+  //   if (_filterDataLoaded && _specializationsCache.isNotEmpty && _citiesCache.isNotEmpty) {
+  //     print('✅ Filter data already cached, skipping reload');
+  //     emit(FilterDataLoaded(
+  //       specializations: _specializationsCache,
+  //       cities: _citiesCache,
+  //     ));
+  //     return;
+  //   }
+  //   print('🔄 Loading filter data...');
+  //   emit(FilterDataLoading());
+  //
+  //   try {
+  //     ///is future.wait the same as await?
+  //     final results = await Future.wait([
+  //       repository.getSpecializations(),
+  //       repository.getCities(),
+  //     ]);
+  //
+  //     ///why does one start with index 0 and the other with 1? and why am I storing the first elements alone in a list?
+  //     _specializationsCache = results[0] as List<Specialization>;
+  //     _citiesCache = results[1] as List<City>;
+  //     _filterDataLoaded = true;
+  //
+  //     print('✅ Filter data loaded: ${_specializationsCache.length} specializations, ${_citiesCache.length} cities');
+  //     emit(FilterDataLoaded(
+  //       specializations: _specializationsCache,
+  //       cities: _citiesCache,
+  //     ));
+  //   } catch (e) {
+  //     emit(FilterError('Failed to load filter data: ${e.toString()}'));
+  //   }
+  // }
+  Future<void> _onLoadFilterData(
+      LoadFilterData event,
+      Emitter<DoctorState> emit,
+      ) async {
+    // Check if already loaded
+    if (_filterDataLoaded && _specializationsCache.isNotEmpty && _citiesCache.isNotEmpty) {
+      print('✅ Filter data already cached, skipping reload');
+      return; // Just return, don't emit anything
+    }
+
+    print('🔄 Loading filter data silently in background...');
+
+    // DON'T emit any loading state
+    // Just load the data in the background
+
+    try {
+      final results = await Future.wait([
+        repository.getSpecializations(),
+        repository.getCities(),
+      ]);
+
+      _specializationsCache = results[0] as List<Specialization>;
+      _citiesCache = results[1] as List<City>;
+      _filterDataLoaded = true;
+
+      print('✅ Filter data loaded: ${_specializationsCache.length} specializations, ${_citiesCache.length} cities');
+
+      // DON'T emit any state - filter data is now available in the bloc
+      // The UI doesn't need to know about this
+
+    } catch (e) {
+      print('❌ Error loading filter data: $e');
+      // Silently fail - we can retry when user opens the filter modal
+    }
+  }
+
   //todo: do i need to handle the rest of the functions here in my repo?
-  void _onApplyFilter(ApplyFilter event, Emitter<DoctorState> emit) {
+  // void _onApplyFilter(ApplyFilter event, Emitter<DoctorState> emit) {
+  //   if (state is DoctorsListLoaded) {
+  //     final currentState = state as DoctorsListLoaded;
+  //
+  //     final filtered = _applyFilters(
+  //       currentState.allDoctors,
+  //       speciality: event.speciality,
+  //       rating: event.rating,
+  //       searchQuery: currentState.searchQuery,
+  //     );
+  //
+  //     emit(currentState.copyWith(
+  //       filteredDoctors: filtered,
+  //       selectedSpeciality: event.speciality,
+  //       selectedRating: event.rating,
+  //       clearSpeciality: event.speciality == null,
+  //       clearRating: event.rating == null,
+  //     ));
+  //   }
+  // }
+  Future<void> _onApplyFilter(
+      ApplyFilter event,
+      Emitter<DoctorState> emit,
+      ) async {
+    if (event.isLocalFilter) {
+      // Local filtering
+      _applyLocalFilter(event, emit);
+    } else {
+      // API filtering
+      await _applyApiFilter(event, emit);
+    }
+  }
+  void _applyLocalFilter(
+      ApplyFilter event,
+      Emitter<DoctorState> emit,
+      ) {
+    // Determine current list of doctors to filter
+    List<Doctor> doctorsToFilter;
+    String currentSearchQuery = '';
+
+    // Get the current state to work with
     if (state is DoctorsListLoaded) {
       final currentState = state as DoctorsListLoaded;
+      doctorsToFilter = currentState.allDoctors;
+      currentSearchQuery = currentState.searchQuery;
+    } else if (state is DoctorsSearched) {
+      final currentState = state as DoctorsSearched;
+      doctorsToFilter = currentState.searchResults;
+      currentSearchQuery = currentState.searchQuery;
+    } else if (state is DoctorsFiltered) {
+      final currentState = state as DoctorsFiltered;
+      doctorsToFilter = _allDoctorsCache;
+      currentSearchQuery = currentState.searchQuery;
+    } else {
+      return; // Can't filter from current state
+    }
 
-      final filtered = _applyFilters(
-        currentState.allDoctors,
-        speciality: event.speciality,
-        rating: event.rating,
+    // Apply local filters
+    final filtered = _applyLocalFilters(
+      doctorsToFilter,
+      specializationId: event.specializationId,
+      cityId: event.cityId,
+      searchQuery: currentSearchQuery,
+    );
+
+    // Emit filtered state
+    if (state is DoctorsSearched) {
+      final currentState = state as DoctorsSearched;
+      emit(DoctorsFiltered(
+        filteredDoctors: filtered,
+        selectedSpecializationId: event.specializationId,
+        selectedCityId: event.cityId,
         searchQuery: currentState.searchQuery,
-      );
-
-      emit(currentState.copyWith(
+      ));
+    } else {
+      emit(DoctorsFiltered(
         filteredDoctors: filtered,
-        selectedSpeciality: event.speciality,
-        selectedRating: event.rating,
-        clearSpeciality: event.speciality == null,
-        clearRating: event.rating == null,
+        selectedSpecializationId: event.specializationId,
+        selectedCityId: event.cityId,
+        searchQuery: currentSearchQuery,
       ));
     }
   }
-
-  void _onSearchDoctors(SearchDoctors event, Emitter<DoctorState> emit) {
-    if (state is DoctorsListLoaded) {
-      final currentState = state as DoctorsListLoaded;
-
-      final filtered = _applyFilters(
-        currentState.allDoctors,
-        speciality: currentState.selectedSpeciality,
-        rating: currentState.selectedRating,
-        searchQuery: event.query,
-      );
-
-      emit(currentState.copyWith(
-        filteredDoctors: filtered,
-        searchQuery: event.query, //passed from the UI
-      ));
-    }
-  }
-
-  void _onClearFilters(ClearFilters event, Emitter<DoctorState> emit) {
-    if (state is DoctorsListLoaded) {
-      final currentState = state as DoctorsListLoaded;
-
-      emit(currentState.copyWith(
-        filteredDoctors: currentState.allDoctors,
-        searchQuery: '',
-        clearSpeciality: true,
-        clearRating: true,
-      ));
-    }
-  }
-
-  List<Doctor> _applyFilters(List<Doctor> doctors, {
-    String? speciality,
-    int? rating,
-    String searchQuery = '',
-  }) {
+  List<Doctor> _applyLocalFilters(
+      List<Doctor> doctors, {
+        int? specializationId,
+        int? cityId,
+        String searchQuery = '',
+      }) {
     return doctors.where((doctor) {
-      // Speciality filter
-      final matchesSpeciality = speciality == null ||
-          doctor.speciality == speciality;
+      // Specialization filter
+      final matchesSpecialization = specializationId == null ||
+          doctor.specialization.id == specializationId;
 
-      // Rating filter
-      final matchesRating = rating == null || doctor.rating.floor() >= rating;
+      // City filter
+      final matchesCity = cityId == null ||
+          doctor.city.id == cityId;
 
       // Search filter
       final matchesSearch = searchQuery.isEmpty ||
@@ -157,10 +261,242 @@ class DoctorBloc extends Bloc<DoctorEvent, DoctorState> {
           doctor.speciality.toLowerCase().contains(searchQuery.toLowerCase()) ||
           doctor.university.toLowerCase().contains(searchQuery.toLowerCase());
 
-      return matchesSpeciality && matchesRating && matchesSearch;
+      return matchesSpecialization && matchesCity && matchesSearch;
     }).toList();
   }
 
+  Future<void> _applyApiFilter(
+      ApplyFilter event,
+      Emitter<DoctorState> emit,
+      ) async {
+    emit(DoctorFilterLoading());
+
+    try {
+      // Determine current search query
+      String currentSearchQuery = '';
+      if (state is DoctorsListLoaded) {
+        currentSearchQuery = (state as DoctorsListLoaded).searchQuery;
+      } else if (state is DoctorsSearched) {
+        currentSearchQuery = (state as DoctorsSearched).searchQuery;
+      } else if (state is DoctorsFiltered) {
+        currentSearchQuery = (state as DoctorsFiltered).searchQuery;
+      }
+
+      // Call API with filters
+
+      ///this function is supposed to handle both endpoints the searching and filtering, could this even be achieved within the same function?
+      final filteredDoctors = await repository.getFilteredDoctors(
+        searchQuery: currentSearchQuery,
+        specializationId: event.specializationId,
+        cityId: event.cityId,
+      );
+
+      emit(DoctorsFiltered(
+        filteredDoctors: filteredDoctors,
+        selectedSpecializationId: event.specializationId,
+        selectedCityId: event.cityId,
+        searchQuery: currentSearchQuery,
+      ));
+    } catch (e) {
+      emit(DoctorError('Filtering failed: ${e.toString()}'));
+      // Revert to previous state
+      if (state is DoctorsListLoaded) {
+        emit(state as DoctorsListLoaded);
+      } else if (state is DoctorsSearched) {
+        emit(state as DoctorsSearched);
+      } else if (state is DoctorsFiltered) {
+        emit(state as DoctorsFiltered);
+      }
+    }
+  }
+  // void _onSearchDoctors(SearchDoctors event, Emitter<DoctorState> emit) {
+  //   if (state is DoctorsListLoaded) {
+  //     final currentState = state as DoctorsListLoaded;
+  //
+  //     final filtered = _applyFilters(
+  //       currentState.allDoctors,
+  //       speciality: currentState.selectedSpeciality,
+  //       rating: currentState.selectedRating,
+  //       searchQuery: event.query,
+  //     );
+  //
+  //     emit(currentState.copyWith(
+  //       filteredDoctors: filtered,
+  //       searchQuery: event.query, //passed from the UI
+  //     ));
+  //   }
+  // }
+  Future<void> _onSearchDoctors(
+      SearchDoctors event,
+      Emitter<DoctorState> emit,
+      ) async {
+    if (event.isLocalSearch) {
+      // Local search
+      _applyLocalSearch(event, emit);
+    } else {
+      // API search
+      await _applyApiSearch(event, emit);
+    }
+  }
+
+  void _applyLocalSearch(
+      SearchDoctors event,
+      Emitter<DoctorState> emit,
+      ) {
+    // Determine current state and apply search
+    if (state is DoctorsListLoaded) {
+      final currentState = state as DoctorsListLoaded;
+
+      final filtered = _applyLocalFilters(
+        currentState.allDoctors,
+        specializationId: currentState.selectedSpecializationId,
+        cityId: currentState.selectedCityId,
+        searchQuery: event.query,
+      );
+
+      // If we have active filters, emit DoctorsFiltered
+      if (currentState.selectedSpecializationId != null ||
+          currentState.selectedCityId != null) {
+        emit(DoctorsFiltered(
+          filteredDoctors: filtered,
+          selectedSpecializationId: currentState.selectedSpecializationId,
+          selectedCityId: currentState.selectedCityId,
+          searchQuery: event.query,
+        ));
+      } else {
+        // Otherwise emit DoctorsSearched
+        emit(DoctorsSearched(
+          searchResults: filtered,
+          searchQuery: event.query,
+        ));
+      }
+    } else if (state is DoctorsFiltered) {
+      final currentState = state as DoctorsFiltered;
+
+      final filtered = _applyLocalFilters(
+        _allDoctorsCache,
+        specializationId: currentState.selectedSpecializationId,
+        cityId: currentState.selectedCityId,
+        searchQuery: event.query,
+      );
+
+      emit(DoctorsFiltered(
+        filteredDoctors: filtered,
+        selectedSpecializationId: currentState.selectedSpecializationId,
+        selectedCityId: currentState.selectedCityId,
+        searchQuery: event.query,
+      ));
+    }
+  }
+
+  Future<void> _applyApiSearch(
+      SearchDoctors event,
+      Emitter<DoctorState> emit,
+      ) async {
+    emit(DoctorFilterLoading());
+
+    try {
+      // Determine current filter values
+      int? currentSpecializationId;
+      int? currentCityId;
+
+      if (state is DoctorsListLoaded) {
+        final currentState = state as DoctorsListLoaded;
+        currentSpecializationId = currentState.selectedSpecializationId;
+        currentCityId = currentState.selectedCityId;
+      } else if (state is DoctorsFiltered) {
+        final currentState = state as DoctorsFiltered;
+        currentSpecializationId = currentState.selectedSpecializationId;
+        currentCityId = currentState.selectedCityId;
+      }
+
+      // Call API with search query and current filters
+      final searchResults = await repository.getFilteredDoctors(
+        searchQuery: event.query,
+        specializationId: currentSpecializationId,
+        cityId: currentCityId,
+      );
+
+      // If we have active filters, emit DoctorsFiltered
+      if (currentSpecializationId != null || currentCityId != null) {
+        emit(DoctorsFiltered(
+          filteredDoctors: searchResults,
+          selectedSpecializationId: currentSpecializationId,
+          selectedCityId: currentCityId,
+          searchQuery: event.query,
+        ));
+      } else {
+        // Otherwise emit DoctorsSearched
+        emit(DoctorsSearched(
+          searchResults: searchResults,
+          searchQuery: event.query,
+        ));
+      }
+    } catch (e) {
+      emit(DoctorError('Search failed: ${e.toString()}'));
+      // Revert to previous state
+      if (state is DoctorsListLoaded) {
+        emit(state as DoctorsListLoaded);
+      } else if (state is DoctorsFiltered) {
+        emit(state as DoctorsFiltered);
+      }
+    }
+  }
+
+  // void _onClearFilters(ClearFilters event, Emitter<DoctorState> emit) {
+  //   if (state is DoctorsListLoaded) {
+  //     final currentState = state as DoctorsListLoaded;
+  //
+  //     emit(currentState.copyWith(
+  //       filteredDoctors: currentState.allDoctors,
+  //       searchQuery: '',
+  //       clearSpeciality: true,
+  //       clearRating: true,
+  //     ));
+  //   }
+  // }
+  void _onClearFilters(
+      ClearFilters event,
+      Emitter<DoctorState> emit,
+      ) {
+    // Clear all filters and show all doctors
+    if (_allDoctorsCache.isNotEmpty) {
+      emit(DoctorsListLoaded(
+        allDoctors: _allDoctorsCache,
+        filteredDoctors: _allDoctorsCache,
+        selectedSpecializationId: null,
+        selectedCityId: null,
+        searchQuery: '',
+      ));
+    } else {
+      // Reload if cache is empty
+      add(LoadDoctorsList());
+    }
+  }
+}
+
+  ///Local approach to applying filters - searching and filtering.
+  // List<Doctor> _applyFilters(List<Doctor> doctors, {String? speciality, int? rating, String searchQuery = '',
+  // }) {
+  //   return doctors.where((doctor) {
+  //     // Speciality filter
+  //     final matchesSpeciality = speciality == null ||
+  //         doctor.speciality == speciality;
+  //
+  //     // Rating filter
+  //     final matchesRating = rating == null || doctor.rating.floor() >= rating;
+  //
+  //     // Search filter
+  //     final matchesSearch = searchQuery.isEmpty ||
+  //         doctor.name.toLowerCase().contains(searchQuery.toLowerCase()) ||
+  //         doctor.speciality.toLowerCase().contains(searchQuery.toLowerCase()) ||
+  //         doctor.university.toLowerCase().contains(searchQuery.toLowerCase());
+  //
+  //     return matchesSpeciality && matchesRating && matchesSearch;
+  //   }).toList();
+  // }
+
+  ///Mock Doctors List
   // List<Doctor> _getMockDoctors() {
   //   return [
   //     Doctor(
@@ -270,4 +606,4 @@ class DoctorBloc extends Bloc<DoctorEvent, DoctorState> {
   //     ),
   //   ];
   // }
-}
+//}

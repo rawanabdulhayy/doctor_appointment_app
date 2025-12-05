@@ -323,7 +323,7 @@ class _HomePageState extends State<HomePage> {
                     shrinkWrap: true,
                     physics: NeverScrollableScrollPhysics(),
                     padding: const EdgeInsets.symmetric(horizontal: 16),
-                    itemCount: state.allDoctors.length,
+                    itemCount: 2,
                     itemBuilder: (context, index) {
                       final doctor = state.allDoctors[index];
 

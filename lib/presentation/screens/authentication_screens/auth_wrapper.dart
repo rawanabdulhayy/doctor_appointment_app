@@ -74,10 +74,11 @@ class AuthWrapper extends StatelessWidget {
         }
 
         // Always wrap with BlocProvider
-        return BlocProvider.value(
-          value: context.read<AuthBloc>(),
-          child: screen,
-        );
+        // return BlocProvider.value(
+        //   value: context.read<AuthBloc>(),
+        //   child: screen,
+        // );
+        return screen;
       },
     );
   }

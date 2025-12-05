@@ -6,6 +6,7 @@ import '../../business_logic/state_management/doctor_information_bloc/doctor_inf
 import '../../business_logic/state_management/doctor_information_bloc/doctor_information_event.dart';
 import '../../business_logic/state_management/doctor_information_bloc/doctor_information_state.dart';
 import '../../core/dependency_injection/injection_container.dart';
+import '../../data/models/doctor_model.dart';
 import '../widgets/doctor_card.dart';
 import 'about_doctor/about_doctor.dart';
 
@@ -21,8 +22,12 @@ class RecommendationDoctor extends StatelessWidget {
       //that would have been the way without having created an injection container:
       // create: (context) => DoctorBloc(repository: DoctorRepository(baseUrl: baseUrl))..add(LoadDoctorsList()),
 
-      create: (context) => sl<DoctorBloc>()..add(LoadDoctorsList()),
-      child: const RecommendationDoctorView(),
+      create: (context) {
+        final bloc = sl<DoctorBloc>();
+        bloc.add(LoadFilterData());
+        bloc.add(LoadDoctorsList());
+        return bloc;
+      },      child: const RecommendationDoctorView(),
     );
   }
 }
@@ -66,9 +71,14 @@ class RecommendationDoctorView extends StatelessWidget {
                       flex: 10,
                       child: SearchBar(
                         onChanged: (searchQuery) {
-                          context.read<DoctorBloc>().add(
-                            SearchDoctors(searchQuery),
-                          );
+                          if (searchQuery.isEmpty) {
+                            // When search is cleared, show all doctors
+                            context.read<DoctorBloc>().add(LoadDoctorsList());
+                          } else {
+                            context.read<DoctorBloc>().add(
+                              SearchDoctors(searchQuery),
+                            );
+                          }
                         },
                         leading: Image.asset(
                           "assets/images/recommendation_dr/search_normal.png",
@@ -109,11 +119,93 @@ class RecommendationDoctorView extends StatelessWidget {
             ),
             SizedBox(height: 16),
 
-            // Doctor List
+  //           // Doctor List
+  //           Expanded(
+  //             child: BlocBuilder<DoctorBloc, DoctorState>(
+  //               builder: (context, state) {
+  //                 if (state is DoctorFilterLoading) {
+  //                   return Center(child: CircularProgressIndicator());
+  //                 }
+  //
+  //                 if (state is DoctorError) {
+  //                   return Center(child: Text(state.message));
+  //                 }
+  //
+  //                 if (state is DoctorsListLoaded) {
+  //                   if (state.filteredDoctors.isEmpty) {
+  //                     return Center(
+  //                       child: Text('No doctors found matching your criteria'),
+  //                     );
+  //                   }
+  //
+  //                   return ListView.builder(
+  //                     itemCount: state.filteredDoctors.length,
+  //                     itemBuilder: (context, index) {
+  //                       final doctor = state.filteredDoctors[index];
+  //                       return GestureDetector(
+  //                         onTap: () {
+  //                           Navigator.push(
+  //                             context,
+  //                             MaterialPageRoute(
+  //                               builder: (_) {
+  //                                 return AboutDoctor(
+  //                                   doctorId: doctor.id
+  //                                       .toString(),
+  //                                 );
+  //                               },
+  //                             ),
+  //                           );
+  //                         },
+  //                         child: DoctorCard(
+  //                           image: doctor.photo,
+  //                           name: doctor.name,
+  //                           speciality: doctor.speciality,
+  //                           rating: doctor.rating,
+  //                           reviewsNumber: doctor.reviewsNumber,
+  //                           university: doctor.university,
+  //                         ),
+  //                       );
+  //                     },
+  //                   );
+  //                 }
+  //                 //shows nothing, I can also return an empty container.
+  //                 return SizedBox.shrink();
+  //               },
+  //             ),
+  //           ),
+  //         ],
+  //       ),
+  //     ),
+  //   );
+  // }
+  //
+  // void _showSortModalSheet(BuildContext context, DoctorState state) {
+  //   //what does the (is!) operator mean?
+  //   if (state is! DoctorsListLoaded) return;
+  //
+  //   showModalBottomSheet(
+  //     context: context,
+  //     isScrollControlled: true,
+  //     backgroundColor: Colors.transparent,
+  //     //how does the builder here work? and is ((bottomSheetContext) => SortModalSheet()) a callback function? or is it an ordinary one? and what even is this passed (bottomSheetContext)?
+  //     builder: (bottomSheetContext) => SortModalSheet(
+  //       selectedSpecializationId: state.selectedSpecializationId,
+  //       selectedCityId: state.selectedCityId,
+  //       onApply: (specializationId, cityId) {
+  //         context.read<DoctorBloc>().add(
+  //           ApplyFilter(specializationId: specializationId, cityId: cityId,
+  //           ),
+  //         );
+  //       },
+  //     ),
+  //   );
+  // }
             Expanded(
               child: BlocBuilder<DoctorBloc, DoctorState>(
                 builder: (context, state) {
-                  if (state is DoctorFilterLoading) {
+                  print('Current state: ${state.runtimeType}');
+
+                  if (state is DoctorLoading || state is DoctorFilterLoading) {
                     return Center(child: CircularProgressIndicator());
                   }
 
@@ -121,45 +213,86 @@ class RecommendationDoctorView extends StatelessWidget {
                     return Center(child: Text(state.message));
                   }
 
-                  if (state is DoctorsListLoaded) {
-                    if (state.filteredDoctors.isEmpty) {
-                      return Center(
-                        child: Text('No doctors found matching your criteria'),
-                      );
-                    }
+                  // Handle all possible states that contain doctors
+                  List<Doctor> doctorsToShow = [];
+                  String? searchQuery = '';
+                  bool isSearching = false;
 
-                    return ListView.builder(
-                      itemCount: state.filteredDoctors.length,
-                      itemBuilder: (context, index) {
-                        final doctor = state.filteredDoctors[index];
-                        return GestureDetector(
-                          onTap: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (_) {
-                                  return AboutDoctor(
-                                    doctorId: doctor.id
-                                        .toString(),
-                                  );
-                                },
-                              ),
-                            );
-                          },
-                          child: DoctorCard(
-                            image: doctor.photo,
-                            name: doctor.name,
-                            speciality: doctor.speciality,
-                            rating: doctor.rating,
-                            reviewsNumber: doctor.reviewsNumber,
-                            university: doctor.university,
+                  if (state is DoctorsListLoaded) {
+                    doctorsToShow = state.filteredDoctors;
+                    searchQuery = state.searchQuery;
+                    print('DoctorsListLoaded: ${doctorsToShow.length} doctors');
+                  } else if (state is DoctorsSearched) {
+                    doctorsToShow = state.searchResults;
+                    searchQuery = state.searchQuery;
+                    isSearching = true;
+                    print('DoctorsSearched: ${doctorsToShow.length} results');
+                  } else if (state is DoctorsFiltered) {
+                    doctorsToShow = state.filteredDoctors;
+                    searchQuery = state.searchQuery;
+                    print('DoctorsFiltered: ${doctorsToShow.length} results');
+                  } else if (state is FilterDataLoading) {
+                    return Center(child: CircularProgressIndicator());
+                  } else if (state is DoctorInfoInitial) {
+                    return Center(child: Text('Loading doctors...'));
+                  }
+
+                  // Show appropriate message if no doctors
+                  if (doctorsToShow.isEmpty) {
+                    return Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(
+                            isSearching ? Icons.search_off : Icons.people_outline,
+                            size: 64,
+                            color: Colors.grey[400],
                           ),
-                        );
-                      },
+                          SizedBox(height: 16),
+                          Text(
+                            isSearching && searchQuery?.isNotEmpty == true
+                                ? 'No doctors found for "$searchQuery"'
+                                : 'No doctors available',
+                            style: TextStyle(
+                              fontSize: 16,
+                              color: Colors.grey[600],
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                        ],
+                      ),
                     );
                   }
-                  //shows nothing, I can also return an empty container.
-                  return SizedBox.shrink();
+
+                  // Show the doctors list
+                  return ListView.builder(
+                    itemCount: doctorsToShow.length,
+                    itemBuilder: (context, index) {
+                      final doctor = doctorsToShow[index];
+                      return GestureDetector(
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) {
+                                return AboutDoctor(
+                                  doctorId: doctor.id.toString(),
+                                );
+                              },
+                            ),
+                          );
+                        },
+                        child: DoctorCard(
+                          image: doctor.photo,
+                          name: doctor.name,
+                          speciality: doctor.speciality,
+                          rating: doctor.rating,
+                          reviewsNumber: doctor.reviewsNumber,
+                          university: doctor.university,
+                        ),
+                      );
+                    },
+                  );
                 },
               ),
             ),
@@ -170,22 +303,48 @@ class RecommendationDoctorView extends StatelessWidget {
   }
 
   void _showSortModalSheet(BuildContext context, DoctorState state) {
-    //what does the (is!) operator mean?
-    if (state is! DoctorsListLoaded) return;
+    // Get current filter values based on state type
+    int? selectedSpecializationId;
+    int? selectedCityId;
+
+    if (state is DoctorsListLoaded) {
+      selectedSpecializationId = state.selectedSpecializationId;
+      selectedCityId = state.selectedCityId;
+    } else if (state is DoctorsFiltered) {
+      selectedSpecializationId = state.selectedSpecializationId;
+      selectedCityId = state.selectedCityId;
+    } else if (state is DoctorsSearched) {
+      // If searching, get filters from bloc state
+      final doctorBloc = context.read<DoctorBloc>();
+      if (!doctorBloc.filterDataLoaded) {
+        doctorBloc.add(LoadFilterData());
+        // Show loading indicator in modal or wait
+      }
+      final blocState = doctorBloc.state;
+      if (blocState is DoctorsFiltered) {
+        selectedSpecializationId = blocState.selectedSpecializationId;
+        selectedCityId = blocState.selectedCityId;
+      }
+    }
 
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      //how does the builder here work? and is ((bottomSheetContext) => SortModalSheet()) a callback function? or is it an ordinary one? and what even is this passed (bottomSheetContext)?
-      builder: (bottomSheetContext) => SortModalSheet(
-        selectedSpeciality: state.selectedSpeciality,
-        selectedRating: state.selectedRating,
-        onApply: (speciality, rating) {
-          context.read<DoctorBloc>().add(
-            ApplyFilter(speciality: speciality, rating: rating),
-          );
-        },
+      builder: (bottomSheetContext) => BlocProvider.value(
+        value: context.read<DoctorBloc>(),
+        child: SortModalSheet(
+          selectedSpecializationId: selectedSpecializationId,
+          selectedCityId: selectedCityId,
+          onApply: (specializationId, cityId) {
+            context.read<DoctorBloc>().add(
+              ApplyFilter(
+                specializationId: specializationId,
+                cityId: cityId,
+              ),
+            );
+          },
+        ),
       ),
     );
   }
