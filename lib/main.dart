@@ -11,6 +11,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'business_logic/state_management/auth_bloc/authentication_bloc.dart';
+import 'business_logic/state_management/user_bloc/user_bloc.dart';
 import 'core/dependency_injection/injection_container.dart';
 
 void main() async {
@@ -37,6 +38,9 @@ class MyApp extends StatelessWidget {
           ),
           BlocProvider<DoctorBloc>(
             create: (context) => sl<DoctorBloc>(),
+          ),
+          BlocProvider<UserBloc>(
+            create: (context) => sl<UserBloc>(),
           ),
         ],
         child: AuthWrapper(),

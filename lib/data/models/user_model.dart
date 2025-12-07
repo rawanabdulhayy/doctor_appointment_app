@@ -18,13 +18,31 @@ class User extends Equatable {
   @override
   List<Object?> get props => [id, name, email, phone, gender];
 
-  factory User.fromJson(Map<String, dynamic> json) {
+  // factory User.fromJson(Map<String, dynamic> json) {
+  //   return User(
+  //     id: json['id'] is int ? json['id'] : null,
+  //     name: json['name'] ?? _extractNameFromEmail(json['email']),
+  //     email: json['email'] ?? '',
+  //     phone: json['phone'] ?? '',
+  //     gender: _parseGender(json['gender']), // Parse both int and string
+  //   );
+  // }
+  factory User.fromJson(dynamic json) {
+    print('🔍 User.fromJson received type: ${json.runtimeType}');
+    print('🔍 User.fromJson received value: $json');
+
+    // Add safety check
+    if (json is! Map<String, dynamic>) {
+      throw FormatException(
+          'User.fromJson expects Map<String, dynamic> but got ${json.runtimeType}'
+      );
+    }
+
     return User(
-      id: json['id'] ? json['id'] : null,
-      name: json['name'] ?? _extractNameFromEmail(json['email']),
-      email: json['email'] ?? '',
+      id: json['id'],
+      name: json['name'] ?? json['username'] ?? _extractNameFromEmail(json['email']),      email: json['email'] ?? '',
       phone: json['phone'] ?? '',
-      gender: _parseGender(json['gender']), // Parse both int and string
+      gender: _parseGender(json['gender']),
     );
   }
   static String? _parseGender(dynamic gender) {

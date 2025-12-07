@@ -40,32 +40,69 @@ class HelperMethods {
   }
 
   static User buildUserFromData(dynamic data, Map<String, dynamic> json) {
-    // If data is a Map with user information
+    print('🔍 === buildUserFromData DEBUG ===');
+    print('🔍 data type: ${data.runtimeType}');
+    print('🔍 data value: $data');
+    print('🔍 json type: ${json.runtimeType}');
+    print('🔍 json value: $json');
+
+    // Handle List response
+    if (data is List) {
+      print('✅ Detected List with ${data.length} items');
+      if (data.isNotEmpty) {
+        final firstItem = data[0];
+        print('✅ First item type: ${firstItem.runtimeType}');
+        print('✅ First item value: $firstItem');
+
+        if (firstItem is Map<String, dynamic>) {
+          print('✅ Creating User from first item');
+          return User(
+            id: HelperMethods.parseInt(firstItem['id']),
+            name: firstItem['name']?.toString() ?? 'User',
+            email: firstItem['email']?.toString() ?? '',
+            phone: firstItem['phone']?.toString() ?? '',
+            gender: HelperMethods.parseGender(firstItem['gender']),
+          );
+        } else {
+          print('❌ First item is not a Map! Type: ${firstItem.runtimeType}');
+        }
+      } else {
+        print('❌ List is empty!');
+      }
+    }
+
+    // Handle Map response
     if (data is Map) {
+      print('✅ Detected Map, creating User');
       final dataMap = Map<String, dynamic>.from(data);
+      final name = dataMap['name']?.toString() ??
+          dataMap['username']?.toString() ??  // ADD THIS LINE
+          'User';
+
+      print('✅ Found name/username: $name');
+
       return User(
         id: HelperMethods.parseInt(dataMap['id']),
-        name: _extractName(dataMap),
-        email: _extractEmail(dataMap),
+        name: name,
+        email: dataMap['email']?.toString() ?? '',
         phone: dataMap['phone']?.toString() ?? '',
         gender: HelperMethods.parseGender(dataMap['gender']),
       );
     }
 
-    // If data is empty or invalid, try to extract from root
-    return User(
-      id: HelperMethods.parseInt(json['id']),
-      name: _extractName(json),
-      email: _extractEmail(json),
-      phone: json['phone']?.toString() ?? '',
-      gender: HelperMethods.parseGender(json['gender']),
+    print('❌ Could not parse data, using fallback');
+    return const User(
+      id: null,
+      name: 'User',
+      email: '',
+      phone: '',
+      gender: null,
     );
   }
-
   static String _extractName(Map<String, dynamic> data) {
-    // Priority: name -> username -> email -> fallback
+    // Check both "name" and "username" fields
     return data['name']?.toString() ??
-        data['username']?.toString() ??
+        data['username']?.toString() ??  // ADD THIS
         extractNameFromEmail(data['email']?.toString()) ??
         'User';
   }
