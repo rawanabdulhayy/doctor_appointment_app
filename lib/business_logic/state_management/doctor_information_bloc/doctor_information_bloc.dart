@@ -157,7 +157,6 @@ class DoctorBloc extends Bloc<DoctorEvent, DoctorState> {
     }
   }
 
-  //todo: do i need to handle the rest of the functions here in my repo?
   // void _onApplyFilter(ApplyFilter event, Emitter<DoctorState> emit) {
   //   if (state is DoctorsListLoaded) {
   //     final currentState = state as DoctorsListLoaded;

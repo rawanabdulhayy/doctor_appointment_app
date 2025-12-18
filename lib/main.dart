@@ -31,28 +31,8 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
       ),
-      home: MultiBlocProvider(
-        providers: [
-          BlocProvider<AuthBloc>(
-            create: (context) => sl<AuthBloc>(),
-          ),
-          BlocProvider<DoctorBloc>(
-            create: (context) => sl<DoctorBloc>(),
-          ),
-          BlocProvider<UserBloc>(
-            create: (context) => sl<UserBloc>(),
-          ),
-        ],
-        child: AuthWrapper(),
-      ),
+      home:
+        SplashScreen(),
     );
   }
 }
-//todo: IMPLEMENT_ME: navigation between pages
-//todo: IMPLEMENT_ME: working icons onPressed
-
-//todo: REVIEW_ME: the nav bar files
-//todo: REVIEW_ME: the screen wrapper files
-//todo: REVIEW_ME: the 3_page_appointment_thing files (appointment type selector widget, time slot selector widget, summary screen, and their bloc files)
-
-//todo: REVIEW_ME & LOOK_ME_UPS: looking up the needed-to-know info commented in all the dr info files. (screenshots taken)

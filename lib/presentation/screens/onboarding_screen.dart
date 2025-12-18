@@ -1,5 +1,12 @@
+import 'package:doctor_appointment_app/presentation/screens/authentication_screens/auth_wrapper.dart';
 import 'package:doctor_appointment_app/presentation/screens/authentication_screens/login_screen.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+
+import '../../business_logic/state_management/auth_bloc/authentication_bloc.dart';
+import '../../business_logic/state_management/doctor_information_bloc/doctor_information_bloc.dart';
+import '../../business_logic/state_management/user_bloc/user_bloc.dart';
+import '../../core/dependency_injection/injection_container.dart';
 
 class OnboardingScreen extends StatelessWidget {
   const OnboardingScreen({super.key});
@@ -139,7 +146,20 @@ class OnboardingScreen extends StatelessWidget {
                               context,
                               MaterialPageRoute(
                                 builder: (_) {
-                                  return const LoginScreen();
+                                  return MultiBlocProvider(
+                                  providers: [
+                                    BlocProvider<AuthBloc>(
+                                      create: (context) => sl<AuthBloc>(),
+                                    ),
+                                    BlocProvider<DoctorBloc>(
+                                      create: (context) => sl<DoctorBloc>(),
+                                    ),
+                                    BlocProvider<UserBloc>(
+                                      create: (context) => sl<UserBloc>(),
+                                    ),
+                                  ],
+                                  child: AuthWrapper(),
+                                );
                                 },
                               ),
                             );
