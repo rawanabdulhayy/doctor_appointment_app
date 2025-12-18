@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../core/dependency_injection/token_provider.dart';
 import '../../../core/exceptions.dart';
@@ -36,7 +37,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     } on ConnectionException catch (e) {
       emit(AuthError(message: e.message));
     } catch (e) {
-      print('BLoC: Unexpected error during login: $e');
+      debugPrint('BLoC: Unexpected error during login: $e');
       emit(AuthError(message: 'Login failed: ${e.toString()}'));
     }
   }
@@ -60,7 +61,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     } on ConnectionException catch (e) {
       emit(AuthError(message: e.message));
     } catch (e) {
-      print('BLoC: Unexpected error during signup: $e');
+      debugPrint('BLoC: Unexpected error during signup: $e');
       emit(AuthError(message: 'Signup failed: ${e.toString()}'));
     }
   }

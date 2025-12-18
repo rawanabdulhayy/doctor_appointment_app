@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:flutter/cupertino.dart';
 import '../../business_logic/repositaries_interfaces/auth_repo_interface.dart';
 import '../../core/exceptions.dart';
 import '../models/auth_response_model.dart';
@@ -21,15 +22,15 @@ class AuthRepositoryImpl implements AuthRepositoryInterface {
 
   @override
   Future<AuthResponse> login(String email, String password) async {
-    print('Login attempt for: $email');
+    debugPrint('Login attempt for: $email');
 
     final response = await dio.post(
       '/auth/login',
       data: {'email': email, 'password': password},
     );
 
-    print('Login response status: ${response.statusCode}');
-    print('Login response data: ${response.data}');
+    debugPrint('Login response status: ${response.statusCode}');
+    debugPrint('Login response data: ${response.data}');
 
     // Handling successful response
     if (response.statusCode == 200) {
@@ -60,7 +61,7 @@ class AuthRepositoryImpl implements AuthRepositoryInterface {
 
   @override
   Future<AuthResponse> signUp(String email, String password, String phone, int gender, String name, String passwordConfirmation) async {
-    print('Signup attempt for: $email, phone: $phone');
+    debugPrint('Signup attempt for: $email, phone: $phone');
 
     final response = await dio.post(
       '/auth/register',
@@ -74,8 +75,8 @@ class AuthRepositoryImpl implements AuthRepositoryInterface {
       },
     );
 
-    print('Signup response status: ${response.statusCode}');
-    print('Signup response data: ${response.data}');
+    debugPrint('Signup response status: ${response.statusCode}');
+    debugPrint('Signup response data: ${response.data}');
 
     // Handling successful response
     if (response.statusCode == 200 || response.statusCode == 201) {

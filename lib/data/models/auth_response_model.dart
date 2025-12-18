@@ -19,7 +19,7 @@
 //   });
 //   factory AuthResponse.fromJson(Map<String, dynamic> json) {
 //     try {
-//       print('AuthResponse raw JSON: $json');
+//       debugPrint('AuthResponse raw JSON: $json');
 //
 //       // Safe parsing helpers
 //       final dynamic statusValue = json['status'];
@@ -76,7 +76,7 @@
 //         message: json['message']?.toString() ?? 'Unexpected response format',
 //       );
 //     } catch (e) {
-//       print('AuthResponse parsing error: $e');
+//       debugPrint('AuthResponse parsing error: $e');
 //       return AuthResponse(
 //         token: '',
 //         status: false,
@@ -102,6 +102,7 @@
 
 import 'package:doctor_appointment_app/core/utils/helper_methods.dart';
 import 'package:doctor_appointment_app/data/models/user_model.dart';
+import 'package:flutter/cupertino.dart';
 
 class AuthResponse {
   final String token;
@@ -122,7 +123,7 @@ class AuthResponse {
     // Dio typically returns response.data as Map<String, dynamic> for JSON
 
     try {
-      print('AuthResponse raw JSON: $json');
+      debugPrint('AuthResponse raw JSON: $json');
 
       // Extract fields safely
       final bool status = HelperMethods.parseTrueStatus(json['status']);
@@ -144,7 +145,7 @@ class AuthResponse {
         message: message,
       );
     } catch (e) {
-      print('AuthResponse parsing error: $e');
+      debugPrint('AuthResponse parsing error: $e');
       return AuthResponse(
         token: '',
         status: false,

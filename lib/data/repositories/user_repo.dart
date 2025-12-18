@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:flutter/cupertino.dart';
 
 import '../../business_logic/repositaries_interfaces/user_repo_interface.dart';
 import '../../core/exceptions.dart';
@@ -40,14 +41,14 @@ class UserRepositoryImpl implements UserRepositoryInterface {
   // @override
   // Future<User> getUserProfile() async {
   //   try {
-  //     print('Fetching user profile from $baseUrl/user/profile');
+  //     debugPrint('Fetching user profile from $baseUrl/user/profile');
   //
   //     final response = await dio.get(
   //       '/user/profile',
   //       options: Options(headers: _getHeaders()),
   //     );
   //
-  //     print('User profile response: ${response.statusCode}');
+  //     debugPrint('User profile response: ${response.statusCode}');
   //
   //     if (response.statusCode == 200) {
   //       final data = response.data;
@@ -87,14 +88,14 @@ class UserRepositoryImpl implements UserRepositoryInterface {
   @override
   Future<User> getUserProfile() async {
     try {
-      print('Fetching user profile from $baseUrl/user/profile');
+      debugPrint('Fetching user profile from $baseUrl/user/profile');
 
       final response = await dio.get(
         '/user/profile',
         options: Options(headers: _getHeaders()),
       );
 
-      print('User profile response: ${response.statusCode}');
+      debugPrint('User profile response: ${response.statusCode}');
 
       if (response.statusCode == 200) {
         final data = response.data;
@@ -104,17 +105,17 @@ class UserRepositoryImpl implements UserRepositoryInterface {
 
           // FIX: Handle List response
           if (userData is List && userData.isNotEmpty) {
-            print('✅ User data is List, extracting first item');
+            debugPrint('User data is List, extracting first item');
             return User.fromJson(userData[0] as Map<String, dynamic>);
           }
           // Handle Map response
           else if (userData is Map<String, dynamic>) {
-            print('✅ User data is Map');
+            debugPrint('User data is Map');
             return User.fromJson(userData);
           }
           // Handle direct user object (no 'data' wrapper)
           else if (data['id'] != null) {
-            print('✅ User data in root');
+            debugPrint('User data in root');
             return User.fromJson(data);
           }
         }
@@ -151,7 +152,7 @@ class UserRepositoryImpl implements UserRepositoryInterface {
   //   String? password,
   // }) async {
   //   try {
-  //     print('Updating user profile at $baseUrl/user/update');
+  //     debugPrint('Updating user profile at $baseUrl/user/update');
   //
   //     final requestData = {
   //       'name': name,
@@ -166,7 +167,7 @@ class UserRepositoryImpl implements UserRepositoryInterface {
   //       options: Options(headers: _getHeaders()),
   //     );
   //
-  //     print('Update response: ${response.statusCode}');
+  //     debugPrint('Update response: ${response.statusCode}');
   //
   //     if (response.statusCode == 200) {
   //       final data = response.data;
@@ -228,7 +229,7 @@ class UserRepositoryImpl implements UserRepositoryInterface {
   //   String? password,
   // }) async {
   //   try {
-  //     print('Updating user profile at $baseUrl/user/update');
+  //     debugPrint('Updating user profile at $baseUrl/user/update');
   //
   //     final requestData = {
   //       'name': name,
@@ -243,7 +244,7 @@ class UserRepositoryImpl implements UserRepositoryInterface {
   //       options: Options(headers: _getHeaders()),
   //     );
   //
-  //     print('Update response: ${response.statusCode}');
+  //     debugPrint('Update response: ${response.statusCode}');
   //
   //     if (response.statusCode == 200) {
   //       final data = response.data;
@@ -253,17 +254,17 @@ class UserRepositoryImpl implements UserRepositoryInterface {
   //
   //         // FIX: Handle List response
   //         if (userData is List && userData.isNotEmpty) {
-  //           print('✅ Updated user data is List, extracting first item');
+  //           debugPrint(' Updated user data is List, extracting first item');
   //           return User.fromJson(userData[0] as Map<String, dynamic>);
   //         }
   //         // Handle Map response
   //         else if (userData is Map<String, dynamic>) {
-  //           print('✅ Updated user data is Map');
+  //           debugPrint(' Updated user data is Map');
   //           return User.fromJson(userData);
   //         }
   //         // Handle direct user object
   //         else if (data['id'] != null) {
-  //           print('✅ Updated user data in root');
+  //           debugPrint(' Updated user data in root');
   //           return User.fromJson(data);
   //         }
   //       }
@@ -316,7 +317,7 @@ class UserRepositoryImpl implements UserRepositoryInterface {
     String? password,
   }) async {
     try {
-      print('Updating user profile at $baseUrl/user/update');
+      debugPrint('Updating user profile at $baseUrl/user/update');
 
       // Clean phone number (remove spaces, dashes, plus signs)
       final cleanPhone = phone.replaceAll(RegExp(r'[\s\-\+]'), '');
@@ -331,7 +332,7 @@ class UserRepositoryImpl implements UserRepositoryInterface {
           'password_confirmation': password,
       };
 
-      print('📤 Request data: $requestData');
+      debugPrint(' Request data: $requestData');
 
       final response = await dio.post(
         '/user/update',
@@ -339,8 +340,8 @@ class UserRepositoryImpl implements UserRepositoryInterface {
         options: Options(headers: _getHeaders()),
       );
 
-      print('Update response status: ${response.statusCode}');
-      print('Update response data: ${response.data}');
+      debugPrint('Update response status: ${response.statusCode}');
+      debugPrint('Update response data: ${response.data}');
 
       if (response.statusCode == 200) {
         final data = response.data;
@@ -350,17 +351,17 @@ class UserRepositoryImpl implements UserRepositoryInterface {
 
           // Handle List response
           if (userData is List && userData.isNotEmpty) {
-            print('✅ Updated user data is List, extracting first item');
+            debugPrint('Updated user data is List, extracting first item');
             return User.fromJson(userData[0] as Map<String, dynamic>);
           }
           // Handle Map response
           else if (userData is Map<String, dynamic>) {
-            print('✅ Updated user data is Map');
+            debugPrint('Updated user data is Map');
             return User.fromJson(userData);
           }
           // Handle direct user object
           else if (data['id'] != null) {
-            print('✅ Updated user data in root');
+            debugPrint(' Updated user data in root');
             return User.fromJson(data);
           }
         }
@@ -390,8 +391,8 @@ class UserRepositoryImpl implements UserRepositoryInterface {
 //           statusCode: 401,
 //         );
 //       } else if (response.statusCode == 422) {
-//         print('❌ 422 Validation error - Full response:');
-//         print(response.data);
+//         debugPrint(' 422 Validation error - Full response:');
+//         debugPrint(response.data);
 //
 //         // Try multiple possible error formats
 //         dynamic errors;
@@ -415,9 +416,9 @@ class UserRepositoryImpl implements UserRepositoryInterface {
 //         String errorMessage = 'Validation failed:\n';
 //
 //         if (errors is Map) {
-//           print('❌ Errors map: $errors');
+//           debugPrint('Errors map: $errors');
 //           errors.forEach((field, messages) {
-//             print('❌ Field "$field" has errors: $messages');
+//             debugPrint(' Field "$field" has errors: $messages');
 //             if (messages is List) {
 //               for (var msg in messages) {
 //                 errorMessage += '• $msg\n';
@@ -432,7 +433,7 @@ class UserRepositoryImpl implements UserRepositoryInterface {
 //           errorMessage = 'Validation failed. Please check your input.\n\nFull response: ${response.data}';
 //         }
 //
-//         print('❌ Final error message: $errorMessage');
+//         debugPrint('Final error message: $errorMessage');
 //
 //         throw ServerException(
 //           message: errorMessage.trim(),
@@ -445,8 +446,8 @@ class UserRepositoryImpl implements UserRepositoryInterface {
 //         );
 //       }
 //     } on DioException catch (e) {
-//       print('❌ DioException in updateUserProfile: ${e.message}');
-//       print('❌ DioException response: ${e.response?.data}');
+//       debugPrint('DioException in updateUserProfile: ${e.message}');
+//       debugPrint(' DioException response: ${e.response?.data}');
 //
 //       if (e.response != null) {
 //         throw ServerException(
@@ -457,7 +458,7 @@ class UserRepositoryImpl implements UserRepositoryInterface {
 //         throw ConnectionException(message: 'Network error: ${e.message}');
 //       }
 //     } catch (e) {
-//       print('❌ Unexpected error in updateUserProfile: $e');
+//       debugPrint(' Unexpected error in updateUserProfile: $e');
 //       rethrow;
 //     }
 //   }

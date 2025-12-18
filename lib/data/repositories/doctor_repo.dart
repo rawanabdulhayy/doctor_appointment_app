@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:flutter/cupertino.dart';
 
 import '../../business_logic/repositaries_interfaces/dr_repo_interface.dart';
 import '../../core/exceptions.dart';
@@ -54,16 +55,16 @@ class DoctorRepositoryImpl implements DoctorRepositoryInterface {
   @override
   Future<Doctor> getDoctorById(String id) async {
     try {
-      print('Fetching doctor with ID: $id from $baseUrl/doctor/show/$id');
-      print('Using auth token: ${_authToken != null ? "Yes" : "No"}');
+      debugPrint('Fetching doctor with ID: $id from $baseUrl/doctor/show/$id');
+      debugPrint('Using auth token: ${_authToken != null ? "Yes" : "No"}');
 
       final response = await dio.get(
         '/doctor/show/$id',
         options: Options(headers: _getHeaders()),
       );
 
-      print('Doctor response status: ${response.statusCode}');
-      print('Doctor response data: ${response.data}');
+      debugPrint('Doctor response status: ${response.statusCode}');
+      debugPrint('Doctor response data: ${response.data}');
 
       // Check if response is HTML (server error page)
       if (_isHtmlResponse(response)) {
@@ -145,7 +146,7 @@ class DoctorRepositoryImpl implements DoctorRepositoryInterface {
         );
       }
     } on DioException catch (e) {
-      print('DioError: ${e.message}');
+      debugPrint('DioError: ${e.message}');
       if (e.response != null) {
         throw ServerException(
           message: 'Failed to load doctor: ${e.response?.statusCode} - ${e.response?.statusMessage}',
@@ -162,16 +163,16 @@ class DoctorRepositoryImpl implements DoctorRepositoryInterface {
   @override
   Future<List<Doctor>> getDoctors() async {
     try {
-      print('Fetching doctors from $baseUrl/doctor/index');
-      print('Using auth token: ${_authToken != null ? "Yes" : "No"}');
+      debugPrint('Fetching doctors from $baseUrl/doctor/index');
+      debugPrint('Using auth token: ${_authToken != null ? "Yes" : "No"}');
 
       final response = await dio.get(
         '/doctor/index',
         options: Options(headers: _getHeaders()),
       );
 
-      print('Doctors response status: ${response.statusCode}');
-      print('Doctors response data: ${response.data}');
+      debugPrint('Doctors response status: ${response.statusCode}');
+      debugPrint('Doctors response data: ${response.data}');
 
       // Check if response is HTML (server error page)
       if (_isHtmlResponse(response)) {
@@ -225,7 +226,7 @@ class DoctorRepositoryImpl implements DoctorRepositoryInterface {
         );
       }
     } on DioException catch (e) {
-      print('DioError: ${e.message}');
+      debugPrint('DioError: ${e.message}');
       if (e.response != null) {
         throw ServerException(
           message: 'Failed to load doctors: ${e.response?.statusCode} - ${e.response?.statusMessage}',
@@ -254,25 +255,25 @@ class DoctorRepositoryImpl implements DoctorRepositoryInterface {
         // Use search endpoint
         endpoint = '/doctor/doctor-search';
         queryParameters['name'] = searchQuery;
-        print('Searching doctors by name: $searchQuery');
+        debugPrint('Searching doctors by name: $searchQuery');
       } else if (specializationId != null || cityId != null) {
         // Use filter endpoint
         endpoint = '/doctor/doctor-filter';
         if (specializationId != null) {
           queryParameters['specialization'] = specializationId;
-          print('Filtering by specialization: $specializationId');
+          debugPrint('Filtering by specialization: $specializationId');
         }
         if (cityId != null) {
           queryParameters['city'] = cityId;
-          print('Filtering by city: $cityId');
+          debugPrint('Filtering by city: $cityId');
         }
       } else {
         // No filters, return all doctors
         return await getDoctors();
       }
 
-      print('Calling endpoint: $endpoint');
-      print('Query parameters: $queryParameters');
+      debugPrint('Calling endpoint: $endpoint');
+      debugPrint('Query parameters: $queryParameters');
 
       final response = await dio.get(
         endpoint,
@@ -280,8 +281,8 @@ class DoctorRepositoryImpl implements DoctorRepositoryInterface {
         options: Options(headers: _getHeaders()),
       );
 
-      print('Filtered doctors response status: ${response.statusCode}');
-      print('Filtered doctors response data: ${response.data}');
+      debugPrint('Filtered doctors response status: ${response.statusCode}');
+      debugPrint('Filtered doctors response data: ${response.data}');
 
       // Check if response is HTML (server error page)
       if (_isHtmlResponse(response)) {
@@ -340,9 +341,9 @@ class DoctorRepositoryImpl implements DoctorRepositoryInterface {
         );
       }
     } on DioException catch (e) {
-      print('DioError in getFilteredDoctors: ${e.message}');
-      print('DioError type: ${e.type}');
-      print('DioError response: ${e.response?.data}');
+      debugPrint('DioError in getFilteredDoctors: ${e.message}');
+      debugPrint('DioError type: ${e.type}');
+      debugPrint('DioError response: ${e.response?.data}');
 
       if (e.response != null) {
         throw ServerException(
@@ -354,7 +355,7 @@ class DoctorRepositoryImpl implements DoctorRepositoryInterface {
         throw ConnectionException(message: 'Network error: ${e.message}');
       }
     } catch (e) {
-      print('Error in getFilteredDoctors: $e');
+      debugPrint('Error in getFilteredDoctors: $e');
       throw ServerException(message: 'Error fetching filtered doctors: $e');
     }
   }
@@ -362,14 +363,14 @@ class DoctorRepositoryImpl implements DoctorRepositoryInterface {
   @override
   Future<List<Specialization>> getSpecializations() async {
     try {
-      print('Fetching specializations from $baseUrl/specialization/index');
+      debugPrint('Fetching specializations from $baseUrl/specialization/index');
 
       final response = await dio.get(
         '/specialization/index',
         options: Options(headers: _getHeaders()),
       );
 
-      print('Specializations response status: ${response.statusCode}');
+      debugPrint('Specializations response status: ${response.statusCode}');
 
       // Check if response is HTML (server error page)
       if (_isHtmlResponse(response)) {
@@ -421,7 +422,7 @@ class DoctorRepositoryImpl implements DoctorRepositoryInterface {
         );
       }
     } on DioException catch (e) {
-      print('DioError in getSpecializations: ${e.message}');
+      debugPrint('DioError in getSpecializations: ${e.message}');
       if (e.response != null) {
         throw ServerException(
           message:
@@ -432,7 +433,7 @@ class DoctorRepositoryImpl implements DoctorRepositoryInterface {
         throw ConnectionException(message: 'Network error: ${e.message}');
       }
     } catch (e) {
-      print('Error in getSpecializations: $e');
+      debugPrint('Error in getSpecializations: $e');
       throw ServerException(message: 'Error fetching specializations: $e');
     }
   }
@@ -440,14 +441,14 @@ class DoctorRepositoryImpl implements DoctorRepositoryInterface {
   @override
   Future<List<City>> getCities() async {
     try {
-      print('Fetching cities from $baseUrl/city/index');
+      debugPrint('Fetching cities from $baseUrl/city/index');
 
       final response = await dio.get(
         '/city/index',
         options: Options(headers: _getHeaders()),
       );
 
-      print('Cities response status: ${response.statusCode}');
+      debugPrint('Cities response status: ${response.statusCode}');
 
       // Check if response is HTML (server error page)
       if (_isHtmlResponse(response)) {
@@ -499,7 +500,7 @@ class DoctorRepositoryImpl implements DoctorRepositoryInterface {
         );
       }
     } on DioException catch (e) {
-      print('DioError in getCities: ${e.message}');
+      debugPrint('DioError in getCities: ${e.message}');
       if (e.response != null) {
         throw ServerException(
           message:
@@ -510,7 +511,7 @@ class DoctorRepositoryImpl implements DoctorRepositoryInterface {
         throw ConnectionException(message: 'Network error: ${e.message}');
       }
     } catch (e) {
-      print('Error in getCities: $e');
+      debugPrint('Error in getCities: $e');
       throw ServerException(message: 'Error fetching cities: $e');
     }
   }

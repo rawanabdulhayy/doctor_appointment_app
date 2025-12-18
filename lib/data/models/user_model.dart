@@ -1,4 +1,5 @@
 import 'package:equatable/equatable.dart';
+import 'package:flutter/cupertino.dart';
 
 class User extends Equatable {
   final int? id; //nullable for new users, provided by the api.
@@ -28,8 +29,8 @@ class User extends Equatable {
   //   );
   // }
   factory User.fromJson(dynamic json) {
-    print('🔍 User.fromJson received type: ${json.runtimeType}');
-    print('🔍 User.fromJson received value: $json');
+    debugPrint('User.fromJson received type: ${json.runtimeType}');
+    debugPrint('User.fromJson received value: $json');
 
     // Add safety check
     if (json is! Map<String, dynamic>) {

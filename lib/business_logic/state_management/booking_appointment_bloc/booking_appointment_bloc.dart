@@ -1,4 +1,5 @@
 import 'package:doctor_appointment_app/business_logic/repositaries_interfaces/booking_repo_interface.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 import '../../../data/models/doctor_model.dart';
@@ -195,20 +196,20 @@ class BookingBloc extends Bloc<BookingEvent, BookingState> {
   // }
 
   String _formatStartTimeForApi(DateTime date, String time) {
-    print('=== DEBUG: Formatting Start Time for API ===');
-    print('Date: $date');
-    print('Time from selector: "$time"');
+    debugPrint('=== DEBUG: Formatting Start Time for API ===');
+    debugPrint('Date: $date');
+    debugPrint('Time from selector: "$time"');
 
     // Make sure time is in correct 12-hour format
     // If it's something like "14:30 PM", convert it to "2:30 PM"
     String fixedTime = _fixTimeFormat(time);
-    print('Fixed time: "$fixedTime"');
+    debugPrint('Fixed time: "$fixedTime"');
 
     // Format date as "Sunday, December 14, 2025"
     final formattedDate = DateFormat('EEEE, MMMM d, yyyy').format(date);
     final result = '$formattedDate $fixedTime';
 
-    print('Final formatted: "$result"');
+    debugPrint('Final formatted: "$result"');
     return result;
   }
 

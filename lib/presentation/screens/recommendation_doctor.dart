@@ -203,7 +203,7 @@ class RecommendationDoctorView extends StatelessWidget {
             Expanded(
               child: BlocBuilder<DoctorBloc, DoctorState>(
                 builder: (context, state) {
-                  print('Current state: ${state.runtimeType}');
+                  debugPrint('Current state: ${state.runtimeType}');
 
                   if (state is DoctorLoading || state is DoctorFilterLoading) {
                     return Center(child: CircularProgressIndicator());
@@ -221,16 +221,16 @@ class RecommendationDoctorView extends StatelessWidget {
                   if (state is DoctorsListLoaded) {
                     doctorsToShow = state.filteredDoctors;
                     searchQuery = state.searchQuery;
-                    print('DoctorsListLoaded: ${doctorsToShow.length} doctors');
+                    debugPrint('DoctorsListLoaded: ${doctorsToShow.length} doctors');
                   } else if (state is DoctorsSearched) {
                     doctorsToShow = state.searchResults;
                     searchQuery = state.searchQuery;
                     isSearching = true;
-                    print('DoctorsSearched: ${doctorsToShow.length} results');
+                    debugPrint('DoctorsSearched: ${doctorsToShow.length} results');
                   } else if (state is DoctorsFiltered) {
                     doctorsToShow = state.filteredDoctors;
                     searchQuery = state.searchQuery;
-                    print('DoctorsFiltered: ${doctorsToShow.length} results');
+                    debugPrint('DoctorsFiltered: ${doctorsToShow.length} results');
                   } else if (state is FilterDataLoading) {
                     return Center(child: CircularProgressIndicator());
                   } else if (state is DoctorInfoInitial) {

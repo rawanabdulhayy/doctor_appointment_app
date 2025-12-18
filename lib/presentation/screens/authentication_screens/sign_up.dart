@@ -415,7 +415,7 @@ class _SignUpState extends State<SignUp> {
                         //         passwordConfirmation: _passwordController.text,
                         //       ),
                         //     );
-                        //     print("successful data");
+                        //     debugPrint("successful data");
                         //   } else {
                         //     SnackBarHelper.show(
                         //       context,
@@ -471,7 +471,7 @@ class _SignUpState extends State<SignUp> {
                               passwordConfirmation: _passwordController.text,
                             ),
                           );
-                          print("successful data");
+                          debugPrint("successful data");
                         },
                         child: Text(
                           'Sign Up',

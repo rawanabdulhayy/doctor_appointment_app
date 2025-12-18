@@ -52,10 +52,10 @@ class _PersonalInformationViewState extends State<PersonalInformationView> {
 
   void _populateFields(dynamic user) {
     if (!_hasLoadedData && user != null) {
-      print(
+      debugPrint(
         '📝 Populating fields with: name=${user.name}, email=${user.email}, phone=${user.phone}, gender=${user.gender}',
       );
-      print(
+      debugPrint(
         '📝 Gender type: ${user.gender.runtimeType}, value: "${user.gender}"',
       );
 
@@ -68,22 +68,22 @@ class _PersonalInformationViewState extends State<PersonalInformationView> {
           // Set gender based on user data - handle both string and int
           if (user.gender != null) {
             final genderStr = user.gender.toString().toLowerCase();
-            print('📝 Gender string (lowercase): "$genderStr"');
+            debugPrint('Gender string (lowercase): "$genderStr"');
 
             if (genderStr == 'male' || genderStr == '0') {
               _selectedGender = 0;
-              print('✅ Set gender to Male (0)');
+              debugPrint('Set gender to Male (0)');
             } else if (genderStr == 'female' || genderStr == '1') {
               _selectedGender = 1;
-              print('✅ Set gender to Female (1)');
+              debugPrint('Set gender to Female (1)');
             } else {
-              print('⚠️ Unknown gender value: $genderStr');
+              debugPrint('Unknown gender value: $genderStr');
             }
           } else {
-            print('⚠️ Gender is null');
+            debugPrint('Gender is null');
           }
 
-          print('📝 Final _selectedGender: $_selectedGender');
+          debugPrint('Final _selectedGender: $_selectedGender');
           _hasLoadedData = true;
         });
       });
@@ -145,11 +145,11 @@ class _PersonalInformationViewState extends State<PersonalInformationView> {
           }
         },
         builder: (context, state) {
-          print('🔍 Current state: ${state.runtimeType}');
+          debugPrint('Current state: ${state.runtimeType}');
 
           // Populate fields when user data is available
           if (state is UserLoaded) {
-            print('✅ UserLoaded - user: ${state.user.name}');
+            debugPrint(' UserLoaded - user: ${state.user.name}');
             _populateFields(state.user);
           } else if (state is UserUpdating) {
             _populateFields(state.currentUser);
@@ -517,11 +517,11 @@ class _PersonalInformationViewState extends State<PersonalInformationView> {
                                     );
                                     return;
                                   }
-                                  print('📤 Sending data:');
-                                  print('  Name: ${_nameController.text}');
-                                  print('  Email: ${_emailController.text}');
-                                  print('  Phone: $phoneToSend');
-                                  print('  Gender: $_selectedGender');
+                                  debugPrint('📤 Sending data:');
+                                  debugPrint('  Name: ${_nameController.text}');
+                                  debugPrint('  Email: ${_emailController.text}');
+                                  debugPrint('  Phone: $phoneToSend');
+                                  debugPrint('  Gender: $_selectedGender');
 
                                   context.read<UserBloc>().add(
                                     UpdateUserProfile(

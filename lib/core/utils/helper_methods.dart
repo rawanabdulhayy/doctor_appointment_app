@@ -1,3 +1,5 @@
+import 'package:flutter/cupertino.dart';
+
 import '../../data/models/user_model.dart';
 
 class HelperMethods {
@@ -40,22 +42,22 @@ class HelperMethods {
   }
 
   static User buildUserFromData(dynamic data, Map<String, dynamic> json) {
-    print('🔍 === buildUserFromData DEBUG ===');
-    print('🔍 data type: ${data.runtimeType}');
-    print('🔍 data value: $data');
-    print('🔍 json type: ${json.runtimeType}');
-    print('🔍 json value: $json');
+    debugPrint('🔍 === buildUserFromData DEBUG ===');
+    debugPrint('🔍 data type: ${data.runtimeType}');
+    debugPrint('🔍 data value: $data');
+    debugPrint('🔍 json type: ${json.runtimeType}');
+    debugPrint('🔍 json value: $json');
 
     // Handle List response
     if (data is List) {
-      print('✅ Detected List with ${data.length} items');
+      debugPrint('✅ Detected List with ${data.length} items');
       if (data.isNotEmpty) {
         final firstItem = data[0];
-        print('✅ First item type: ${firstItem.runtimeType}');
-        print('✅ First item value: $firstItem');
+        debugPrint('✅ First item type: ${firstItem.runtimeType}');
+        debugPrint('✅ First item value: $firstItem');
 
         if (firstItem is Map<String, dynamic>) {
-          print('✅ Creating User from first item');
+          debugPrint('✅ Creating User from first item');
           return User(
             id: HelperMethods.parseInt(firstItem['id']),
             name: firstItem['name']?.toString() ?? 'User',
@@ -64,22 +66,22 @@ class HelperMethods {
             gender: HelperMethods.parseGender(firstItem['gender']),
           );
         } else {
-          print('❌ First item is not a Map! Type: ${firstItem.runtimeType}');
+          debugPrint('❌ First item is not a Map! Type: ${firstItem.runtimeType}');
         }
       } else {
-        print('❌ List is empty!');
+        debugPrint('❌ List is empty!');
       }
     }
 
     // Handle Map response
     if (data is Map) {
-      print('✅ Detected Map, creating User');
+      debugPrint('✅ Detected Map, creating User');
       final dataMap = Map<String, dynamic>.from(data);
       final name = dataMap['name']?.toString() ??
           dataMap['username']?.toString() ??  // ADD THIS LINE
           'User';
 
-      print('✅ Found name/username: $name');
+      debugPrint('✅ Found name/username: $name');
 
       return User(
         id: HelperMethods.parseInt(dataMap['id']),
@@ -90,7 +92,7 @@ class HelperMethods {
       );
     }
 
-    print('❌ Could not parse data, using fallback');
+    debugPrint('❌ Could not parse data, using fallback');
     return const User(
       id: null,
       name: 'User',

@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:doctor_appointment_app/business_logic/repositaries_interfaces/dr_repo_interface.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../data/models/doctor_model.dart';
 import 'doctor_information_event.dart';
@@ -89,14 +90,14 @@ class DoctorBloc extends Bloc<DoctorEvent, DoctorState> {
   //     ) async {
   //   // Check if already loaded
   //   if (_filterDataLoaded && _specializationsCache.isNotEmpty && _citiesCache.isNotEmpty) {
-  //     print('✅ Filter data already cached, skipping reload');
+  //     debugPrint('Filter data already cached, skipping reload');
   //     emit(FilterDataLoaded(
   //       specializations: _specializationsCache,
   //       cities: _citiesCache,
   //     ));
   //     return;
   //   }
-  //   print('🔄 Loading filter data...');
+  //   debugPrint('Loading filter data...');
   //   emit(FilterDataLoading());
   //
   //   try {
@@ -111,7 +112,7 @@ class DoctorBloc extends Bloc<DoctorEvent, DoctorState> {
   //     _citiesCache = results[1] as List<City>;
   //     _filterDataLoaded = true;
   //
-  //     print('✅ Filter data loaded: ${_specializationsCache.length} specializations, ${_citiesCache.length} cities');
+  //     debugPrint('Filter data loaded: ${_specializationsCache.length} specializations, ${_citiesCache.length} cities');
   //     emit(FilterDataLoaded(
   //       specializations: _specializationsCache,
   //       cities: _citiesCache,
@@ -126,11 +127,11 @@ class DoctorBloc extends Bloc<DoctorEvent, DoctorState> {
       ) async {
     // Check if already loaded
     if (_filterDataLoaded && _specializationsCache.isNotEmpty && _citiesCache.isNotEmpty) {
-      print('✅ Filter data already cached, skipping reload');
+      debugPrint('Filter data already cached, skipping reload');
       return; // Just return, don't emit anything
     }
 
-    print('🔄 Loading filter data silently in background...');
+    debugPrint('Loading filter data silently in background...');
 
     // DON'T emit any loading state
     // Just load the data in the background
@@ -145,13 +146,13 @@ class DoctorBloc extends Bloc<DoctorEvent, DoctorState> {
       _citiesCache = results[1] as List<City>;
       _filterDataLoaded = true;
 
-      print('✅ Filter data loaded: ${_specializationsCache.length} specializations, ${_citiesCache.length} cities');
+      debugPrint('Filter data loaded: ${_specializationsCache.length} specializations, ${_citiesCache.length} cities');
 
       // DON'T emit any state - filter data is now available in the bloc
       // The UI doesn't need to know about this
 
     } catch (e) {
-      print('❌ Error loading filter data: $e');
+      debugPrint(' Error loading filter data: $e');
       // Silently fail - we can retry when user opens the filter modal
     }
   }

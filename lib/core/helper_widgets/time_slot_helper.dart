@@ -1,16 +1,18 @@
+import 'package:flutter/cupertino.dart';
+
 class TimeSlotHelper {
   // Generate time slots from doctor's working hours
   static List<String> generateSlotsFromRange(String startTime, String endTime) {
-    print('=== DEBUG: Parsing Doctor Hours ===');
-    print('Start Time from API: "$startTime"');
-    print('End Time from API: "$endTime"');
+    debugPrint('=== DEBUG: Parsing Doctor Hours ===');
+    debugPrint('Start Time from API: "$startTime"');
+    debugPrint('End Time from API: "$endTime"');
 
     // Parse times like "14:00:00 PM" or "09:00:00 AM"
     final start = _parseTime(startTime);
     final end = _parseTime(endTime);
 
-    print('Parsed Start Hour (24h): $start');
-    print('Parsed End Hour (24h): $end');
+    debugPrint('Parsed Start Hour (24h): $start');
+    debugPrint('Parsed End Hour (24h): $end');
 
     List<String> slots = [];
 
@@ -20,7 +22,7 @@ class TimeSlotHelper {
       slots.add(_formatTime12Hour(hour, 30));
     }
 
-    print('Generated slots: $slots');
+    debugPrint('Generated slots: $slots');
     return slots;
   }
 
@@ -29,23 +31,23 @@ class TimeSlotHelper {
     // Clean the string first
     timeStr = timeStr.trim().toUpperCase();
 
-    print('Parsing time: "$timeStr"');
+    debugPrint('Parsing time: "$timeStr"');
 
     // Handle the weird format "14:00:00 PM"
     // If it contains both 24-hour time AND AM/PM, remove AM/PM
     final hourMatch = RegExp(r'^(\d{1,2})').firstMatch(timeStr);
     if (hourMatch == null) {
-      print('  Could not find hour, defaulting to 9');
+      debugPrint('  Could not find hour, defaulting to 9');
       return 9; // Default to 9 AM
     }
 
     int hour = int.parse(hourMatch.group(1)!);
-    print('  Extracted hour: $hour');
+    debugPrint('  Extracted hour: $hour');
 
     // Check if this looks like invalid format (24-hour with AM/PM)
     if (hour >= 13 && (timeStr.contains('PM') || timeStr.contains('AM'))) {
-      print('  WARNING: Invalid format - 24-hour time with AM/PM suffix');
-      print('  Using hour as-is: $hour');
+      debugPrint('  WARNING: Invalid format - 24-hour time with AM/PM suffix');
+      debugPrint('  Using hour as-is: $hour');
       return hour; // Just use the 24-hour value
     }
 
@@ -54,10 +56,10 @@ class TimeSlotHelper {
       if (hour != 12) {
         hour += 12;
       }
-      print('  PM detected, converted to: $hour');
+      debugPrint('  PM detected, converted to: $hour');
     } else if (timeStr.contains('AM') && hour == 12) {
       hour = 0;
-      print('  12 AM detected, converted to: $hour');
+      debugPrint('  12 AM detected, converted to: $hour');
     }
 
     return hour;
@@ -87,22 +89,22 @@ class TimeSlotHelper {
   // Helper to parse "Monday, December 15, 2025 2:00 PM" to DateTime
   static DateTime? parseAppointmentTime(String appointmentTime) {
     try {
-      print('Parsing appointment time: "$appointmentTime"');
+      debugPrint('Parsing appointment time: "$appointmentTime"');
 
       // Clean the string (remove extra spaces)
       final cleanedTime = appointmentTime.trim().replaceAll(RegExp(r'\s+'), ' ');
-      print('Cleaned: "$cleanedTime"');
+      debugPrint('Cleaned: "$cleanedTime"');
 
       // Expected format: "Monday, December 15, 2025 2:00 PM"
       // or variations like: "Monday, December 15, 2025 2:00 PM"
 
       // Split by spaces
       final parts = cleanedTime.split(' ');
-      print('Parts: $parts (${parts.length} parts)');
+      debugPrint('Parts: $parts (${parts.length} parts)');
 
       // We need at least 5 parts: DayOfWeek, Month, Day, Year, Time, AM/PM
       if (parts.length < 5) {
-        print('Not enough parts for parsing');
+        debugPrint('Not enough parts for parsing');
         return null;
       }
 
@@ -122,7 +124,7 @@ class TimeSlotHelper {
       };
       final month = monthMap[monthStr];
       if (month == null) {
-        print('Invalid month: $monthStr');
+        debugPrint('Invalid month: $monthStr');
         return null;
       }
 
@@ -130,7 +132,7 @@ class TimeSlotHelper {
       final dayStr = parts[dayIndex].replaceAll(',', '');
       final day = int.tryParse(dayStr);
       if (day == null) {
-        print('Invalid day: $dayStr');
+        debugPrint('Invalid day: $dayStr');
         return null;
       }
 
@@ -138,7 +140,7 @@ class TimeSlotHelper {
       final yearStr = parts[yearIndex];
       final year = int.tryParse(yearStr);
       if (year == null) {
-        print('Invalid year: $yearStr');
+        debugPrint('Invalid year: $yearStr');
         return null;
       }
 
@@ -146,36 +148,36 @@ class TimeSlotHelper {
       final timeStr = parts[timeIndex];
       final timeParts = timeStr.split(':');
       if (timeParts.length != 2) {
-        print('Invalid time format: $timeStr');
+        debugPrint('Invalid time format: $timeStr');
         return null;
       }
 
       var hour = int.tryParse(timeParts[0]);
       final minute = int.tryParse(timeParts[1]);
       if (hour == null || minute == null) {
-        print('Invalid hour/minute: $timeStr');
+        debugPrint('Invalid hour/minute: $timeStr');
         return null;
       }
 
       // Parse AM/PM
       if (periodIndex < parts.length) {
         final period = parts[periodIndex].toUpperCase();
-        print('Period: $period, Hour before: $hour');
+        debugPrint('Period: $period, Hour before: $hour');
 
         if (period == 'PM' && hour != 12) {
           hour += 12;
         } else if (period == 'AM' && hour == 12) {
           hour = 0;
         }
-        print('Hour after conversion: $hour');
+        debugPrint('Hour after conversion: $hour');
       }
 
       final result = DateTime(year, month, day, hour, minute);
-      print('Successfully parsed to: $result');
+      debugPrint('Successfully parsed to: $result');
       return result;
 
     } catch (e) {
-      print('Error parsing appointment time "$appointmentTime": $e');
+      debugPrint('Error parsing appointment time "$appointmentTime": $e');
       return null;
     }
   }
@@ -183,7 +185,7 @@ class TimeSlotHelper {
 // Helper to extract time string in format "2:00 PM"
   static String? extractTimeString(String appointmentTime) {
     try {
-      print('Extracting time from: "$appointmentTime"');
+      debugPrint('Extracting time from: "$appointmentTime"');
 
       // Clean the string
       final cleanedTime = appointmentTime.trim().replaceAll(RegExp(r'\s+'), ' ');
@@ -205,7 +207,7 @@ class TimeSlotHelper {
             // Remove leading zero for single-digit hours
             final displayHour = hour == 0 ? 12 : (hour > 12 ? hour - 12 : hour);
             final result = '$displayHour:$minute $periodStr';
-            print('Extracted time: $result');
+            debugPrint('Extracted time: $result');
             return result;
           }
         }
@@ -213,7 +215,7 @@ class TimeSlotHelper {
 
       return null;
     } catch (e) {
-      print('Error extracting time: $e');
+      debugPrint('Error extracting time: $e');
       return null;
     }
   }
@@ -245,7 +247,7 @@ class TimeSlotHelper {
       // Check if slot time is before current time
       return slotTime.isBefore(now);
     } catch (e) {
-      print('Error parsing time $timeString: $e');
+      debugPrint('Error parsing time $timeString: $e');
       return false;
     }
   }

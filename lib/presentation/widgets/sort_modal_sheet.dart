@@ -260,7 +260,7 @@ class _SortBottomSheetState extends State<SortModalSheet> {
       },
       child: BlocBuilder<DoctorBloc, DoctorState>(
         builder: (context, state) {
-          print('SortModalSheet state: ${state.runtimeType}');
+          debugPrint('SortModalSheet state: ${state.runtimeType}');
 
           // Check if filter data is already loaded
           if (state is FilterDataLoaded) {

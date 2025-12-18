@@ -91,7 +91,7 @@ class PhoneInputField extends StatelessWidget {
 // // Parent widget
 // PhoneInputField(
 // onChanged: (formattedNumber) {
-// print("Formatted number: $formattedNumber");
+// debugPrint("Formatted number: $formattedNumber");
 // // formattedNumber might be "+1 (555) 123-4567"
 // },
 // )
