@@ -29,6 +29,10 @@ class _SignUpState extends State<SignUp> {
   bool _obscurePassword = true;
   int? _selectedGender; // 1 = male, 2 = female, null = not selected
 
+  // For manual validation approach
+  String? _phoneError;
+  String? _genderError;
+
   @override
   void dispose() {
     _emailController.dispose();
@@ -192,7 +196,32 @@ class _SignUpState extends State<SignUp> {
                         validator: Validators.validatePassword,
                       ),
                       const SizedBox(height: 15),
-                      PhoneInputField(controller: _phoneController),
+                      PhoneInputField(
+                        controller: _phoneController,
+                        errorText: _phoneError,
+                        // //"When a value is typed, call this function with the value."
+                        // validator: (value) {
+                        //   return Validators.validatePhoneNumber(value);
+                        // },
+                        onChanged: (phone) {
+                          if (_phoneError != null && phone.isNotEmpty) {
+                            setState(() {
+                              _phoneError = null;
+                            });
+                          }
+                        },
+                      ),
+                      if (_phoneError != null)
+                        Padding(
+                          padding: const EdgeInsets.only(left: 12, top: 4),
+                          child: Text(
+                            _phoneError!,
+                            style: TextStyle(
+                              color: Colors.red,
+                              fontSize: 12,
+                            ),
+                          ),
+                        ),
                       const SizedBox(height: 15),
                       // Gender Selection
                       Container(
@@ -203,10 +232,12 @@ class _SignUpState extends State<SignUp> {
                         ),
                         decoration: BoxDecoration(
                           border: Border.all(
-                            color: _selectedGender == null
+                            color: _genderError != null
+                                ? Colors.red
+                                : (_selectedGender == null
                                 ? Color.fromRGBO(194, 194, 194, 1)
-                                : Colors.blue,
-                            width: _selectedGender == null ? 1 : 1.5,
+                                : Colors.blue),
+                            width: _genderError != null || _selectedGender != null ? 1.5 : 1,
                           ),
                           borderRadius: BorderRadius.circular(16),
                         ),
@@ -231,6 +262,7 @@ class _SignUpState extends State<SignUp> {
                                     onTap: () {
                                       setState(() {
                                         _selectedGender = 0;
+                                        _genderError = null;
                                       });
                                     },
                                     child: Container(
@@ -284,6 +316,7 @@ class _SignUpState extends State<SignUp> {
                                     onTap: () {
                                       setState(() {
                                         _selectedGender = 1;
+                                        _genderError = null;
                                       });
                                     },
                                     child: Container(
@@ -327,6 +360,7 @@ class _SignUpState extends State<SignUp> {
                                         ],
                                       ),
                                     ),
+
                                   ),
                                 ),
                               ],
@@ -334,6 +368,17 @@ class _SignUpState extends State<SignUp> {
                           ],
                         ),
                       ),
+                      if (_genderError != null)
+                        Padding(
+                          padding: const EdgeInsets.only(left: 12, top: 4),
+                          child: Text(
+                            _genderError!,
+                            style: TextStyle(
+                              color: Colors.red,
+                              fontSize: 12,
+                            ),
+                          ),
+                        ),
                       const SizedBox(height: 15),
                       ElevatedButton(
                         style: ElevatedButton.styleFrom(
@@ -344,29 +389,89 @@ class _SignUpState extends State<SignUp> {
                           backgroundColor: AppColors.boldPrimaryColor,
                           foregroundColor: AppColors.backgroundWhite,
                         ),
+                        // onPressed: () {
+                        //   if (formKey.currentState!.validate()) {
+                        //     if (_selectedGender == null) {
+                        //       setState(() {
+                        //         _genderError = 'Please select your gender';
+                        //       });
+                        //       SnackBarHelper.show(
+                        //         context,
+                        //         'Please select your gender',
+                        //         type: SnackBarType.error,
+                        //       );
+                        //       return;
+                        //     }
+                        //     context.read<AuthBloc>().add(
+                        //       SignUpEvent(
+                        //         email: _emailController.text.trim(),
+                        //         password: _passwordController.text,
+                        //         phone: _phoneController.text,
+                        //         gender: _selectedGender!,
+                        //         name: _emailController.text
+                        //             .trim()
+                        //             .split('@')
+                        //             .first,
+                        //         passwordConfirmation: _passwordController.text,
+                        //       ),
+                        //     );
+                        //     print("successful data");
+                        //   } else {
+                        //     SnackBarHelper.show(
+                        //       context,
+                        //       'Please fix the errors in red.',
+                        //       type: SnackBarType.error,
+                        //     );
+                        //   }
+                        // },
+                        // In your sign_up_screen.dart, replace the onPressed logic of the ElevatedButton:
                         onPressed: () {
-                          if (formKey.currentState!.validate()) {
-                            context.read<AuthBloc>().add(
-                              SignUpEvent(
-                                email: _emailController.text.trim(),
-                                password: _passwordController.text,
-                                phone: _phoneController.text,
-                                gender: _selectedGender!,
-                                name: _emailController.text
-                                    .trim()
-                                    .split('@')
-                                    .first,
-                                passwordConfirmation: _passwordController.text,
-                              ),
-                            );
-                            print("successful data");
-                          } else {
+                          // Clear previous errors
+                          setState(() {
+                            _phoneError = null;
+                            _genderError = null;
+                          });
+
+                          // Validate form fields (email, password)
+                          bool isFormValid = formKey.currentState!.validate();
+
+                          // Manually validate phone
+                          String? phoneValidationError = Validators.validatePhoneNumber(_phoneController.text);
+                          if (phoneValidationError != null) {
+                            setState(() {
+                              _phoneError = phoneValidationError;
+                            });
+                          }
+
+                          // Manually validate gender
+                          if (_selectedGender == null) {
+                            setState(() {
+                              _genderError = 'Please select your gender';
+                            });
+                          }
+
+                          // Check if everything is valid
+                          if (!isFormValid || phoneValidationError != null || _selectedGender == null) {
                             SnackBarHelper.show(
                               context,
-                              'Please fix the errors in red.',
+                              'Please fix the errors in the form',
                               type: SnackBarType.error,
                             );
+                            return;
                           }
+
+                          // All validation passed - proceed with sign up
+                          context.read<AuthBloc>().add(
+                            SignUpEvent(
+                              email: _emailController.text.trim(),
+                              password: _passwordController.text,
+                              phone: _phoneController.text,
+                              gender: _selectedGender!,
+                              name: _emailController.text.trim().split('@').first,
+                              passwordConfirmation: _passwordController.text,
+                            ),
+                          );
+                          print("successful data");
                         },
                         child: Text(
                           'Sign Up',

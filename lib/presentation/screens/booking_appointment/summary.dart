@@ -355,7 +355,7 @@ class Summary extends StatelessWidget {
                 context: context,
                 barrierDismissible: false,
                 builder: (context) => AlertDialog(
-                  title: Text('Booking Confirmed!'),
+                  title: Center(child: Text('Booking Confirmed!')),
                   content: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
