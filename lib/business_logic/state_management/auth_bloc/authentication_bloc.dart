@@ -30,6 +30,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       final authResponse = await loginUseCase(event.email, event.password);
       tokenProvider.setToken(authResponse.token);
       emit(AuthSuccess(authResponse: authResponse));
+      // Catch the ServerException from repository
     } on ServerException catch (e) {
       emit(AuthError(message: e.message));
     } on ConnectionException catch (e) {

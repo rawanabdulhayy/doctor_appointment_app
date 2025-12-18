@@ -60,7 +60,7 @@ class _LoginScreenState extends State<LoginScreen> {
           //   );
           // }
            if (state is AuthError) {
-            Navigator.pop(context);
+            // Navigator.pop(context);
             SnackBarHelper.show(
               context,
               state.message,
