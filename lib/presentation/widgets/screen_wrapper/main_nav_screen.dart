@@ -1,5 +1,6 @@
 // 6. Main Navigation Container
 import 'package:doctor_appointment_app/presentation/screens/profile_screen.dart';
+import 'package:doctor_appointment_app/presentation/screens/recommendation_doctor.dart';
 import 'package:doctor_appointment_app/presentation/widgets/screen_wrapper/screen_wrapper.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -40,7 +41,7 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
                 MessagesPage(),
                 CalendarPage(),
                 ProfileScreen(),
-                SearchPage(),
+                RecommendationDoctor(),
               ],
             ),
           );

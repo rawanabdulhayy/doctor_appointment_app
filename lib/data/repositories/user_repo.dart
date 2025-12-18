@@ -10,15 +10,15 @@ class UserRepositoryImpl implements UserRepositoryInterface {
   String? _authToken;
 
   UserRepositoryImpl({required this.baseUrl, String? authToken})
-      : _authToken = authToken,
-        dio = Dio(
-          BaseOptions(
-            baseUrl: baseUrl,
-            connectTimeout: const Duration(seconds: 30),
-            receiveTimeout: const Duration(seconds: 30),
-            validateStatus: (status) => true,
-          ),
-        );
+    : _authToken = authToken,
+      dio = Dio(
+        BaseOptions(
+          baseUrl: baseUrl,
+          connectTimeout: const Duration(seconds: 30),
+          receiveTimeout: const Duration(seconds: 30),
+          validateStatus: (status) => true,
+        ),
+      );
 
   void setAuthToken(String token) {
     _authToken = token;
@@ -327,7 +327,8 @@ class UserRepositoryImpl implements UserRepositoryInterface {
         'phone': cleanPhone,
         'gender': gender,
         if (password != null && password.isNotEmpty) 'password': password,
-        if (password != null && password.isNotEmpty) 'password_confirmation': password,
+        if (password != null && password.isNotEmpty)
+          'password_confirmation': password,
       };
 
       print('📤 Request data: $requestData');
@@ -366,80 +367,98 @@ class UserRepositoryImpl implements UserRepositoryInterface {
 
         throw ServerException(message: 'Unexpected response format');
       } else if (response.statusCode == 401) {
-        throw ServerException(
-          message: 'Unauthorized - Please login again',
-          statusCode: 401,
-        );
+        throw UnauthorizedException();
       } else if (response.statusCode == 422) {
-        print('❌ 422 Validation error - Full response:');
-        print(response.data);
-
-        // Try multiple possible error formats
-        dynamic errors;
-
-        // Format 1: { "errors": { "field": ["message"] } }
-        if (response.data['errors'] != null) {
-          errors = response.data['errors'];
-        }
-        // Format 2: { "data": { "field": ["message"] } }
-        else if (response.data['data'] != null) {
-          errors = response.data['data'];
-        }
-        // Format 3: { "message": "error message" }
-        else if (response.data['message'] != null) {
-          throw ServerException(
-            message: response.data['message'].toString(),
-            statusCode: 422,
-          );
-        }
-
-        String errorMessage = 'Validation failed:\n';
-
-        if (errors is Map) {
-          print('❌ Errors map: $errors');
-          errors.forEach((field, messages) {
-            print('❌ Field "$field" has errors: $messages');
-            if (messages is List) {
-              for (var msg in messages) {
-                errorMessage += '• $msg\n';
-              }
-            } else if (messages is String) {
-              errorMessage += '• $messages\n';
-            }
-          });
-        } else if (errors is String) {
-          errorMessage = errors;
-        } else {
-          errorMessage = 'Validation failed. Please check your input.\n\nFull response: ${response.data}';
-        }
-
-        print('❌ Final error message: $errorMessage');
-
-        throw ServerException(
-          message: errorMessage.trim(),
-          statusCode: 422,
-        );
+        throw ValidationException(errors: response.data['data'] ?? {});
       } else {
-        throw ServerException(
-          message: 'Failed to update profile: ${response.statusCode}\n${response.data}',
-          statusCode: response.statusCode,
-        );
+        throw ServerException(statusCode: response.statusCode, message: '');
       }
     } on DioException catch (e) {
-      print('❌ DioException in updateUserProfile: ${e.message}');
-      print('❌ DioException response: ${e.response?.data}');
-
-      if (e.response != null) {
-        throw ServerException(
-          message: 'Server error: ${e.response?.statusCode} - ${e.response?.data}',
-          statusCode: e.response?.statusCode,
-        );
-      } else {
-        throw ConnectionException(message: 'Network error: ${e.message}');
+      if (e.type == DioExceptionType.connectionTimeout) {
+        throw NetworkException(type: NetworkExceptionType.timeout);
+      } else if (e.type == DioExceptionType.connectionError) {
+        throw NetworkException(type: NetworkExceptionType.noConnection);
       }
-    } catch (e) {
-      print('❌ Unexpected error in updateUserProfile: $e');
-      rethrow;
+      throw NetworkException(type: NetworkExceptionType.serverError);
     }
   }
 }
+
+//       else if (response.statusCode == 401) {
+//         throw ServerException(
+//           message: 'Unauthorized - Please login again',
+//           statusCode: 401,
+//         );
+//       } else if (response.statusCode == 422) {
+//         print('❌ 422 Validation error - Full response:');
+//         print(response.data);
+//
+//         // Try multiple possible error formats
+//         dynamic errors;
+//
+//         // Format 1: { "errors": { "field": ["message"] } }
+//         if (response.data['errors'] != null) {
+//           errors = response.data['errors'];
+//         }
+//         // Format 2: { "data": { "field": ["message"] } }
+//         else if (response.data['data'] != null) {
+//           errors = response.data['data'];
+//         }
+//         // Format 3: { "message": "error message" }
+//         else if (response.data['message'] != null) {
+//           throw ServerException(
+//             message: response.data['message'].toString(),
+//             statusCode: 422,
+//           );
+//         }
+//
+//         String errorMessage = 'Validation failed:\n';
+//
+//         if (errors is Map) {
+//           print('❌ Errors map: $errors');
+//           errors.forEach((field, messages) {
+//             print('❌ Field "$field" has errors: $messages');
+//             if (messages is List) {
+//               for (var msg in messages) {
+//                 errorMessage += '• $msg\n';
+//               }
+//             } else if (messages is String) {
+//               errorMessage += '• $messages\n';
+//             }
+//           });
+//         } else if (errors is String) {
+//           errorMessage = errors;
+//         } else {
+//           errorMessage = 'Validation failed. Please check your input.\n\nFull response: ${response.data}';
+//         }
+//
+//         print('❌ Final error message: $errorMessage');
+//
+//         throw ServerException(
+//           message: errorMessage.trim(),
+//           statusCode: 422,
+//         );
+//       } else {
+//         throw ServerException(
+//           message: 'Failed to update profile: ${response.statusCode}\n${response.data}',
+//           statusCode: response.statusCode,
+//         );
+//       }
+//     } on DioException catch (e) {
+//       print('❌ DioException in updateUserProfile: ${e.message}');
+//       print('❌ DioException response: ${e.response?.data}');
+//
+//       if (e.response != null) {
+//         throw ServerException(
+//           message: 'Server error: ${e.response?.statusCode} - ${e.response?.data}',
+//           statusCode: e.response?.statusCode,
+//         );
+//       } else {
+//         throw ConnectionException(message: 'Network error: ${e.message}');
+//       }
+//     } catch (e) {
+//       print('❌ Unexpected error in updateUserProfile: $e');
+//       rethrow;
+//     }
+//   }
+// }

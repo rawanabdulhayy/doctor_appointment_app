@@ -156,9 +156,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (_) {
-                              return UpdateProfileScreen();
-                            },
+                            builder: (_) => BlocProvider.value(
+                              ///we are passing the same bloc's value already created using the instance from the main?
+                              ///but why did we have to pass the value here along with providing the bloc? ever since we logged in, and been navigating across the program, whether through the nav bar or even navigator buttons, we didn't explicitly provide another userbloc created instance of bloc.
+                              ///didn't we provide it once in main to be able to have the entire program listen to such creation?
+                              value: context.read<UserBloc>(),
+                              child: UpdateProfileScreen(),
+                            ),
                           ),
                         );
                       },

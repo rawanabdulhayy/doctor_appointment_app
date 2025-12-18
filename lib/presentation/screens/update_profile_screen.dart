@@ -12,10 +12,7 @@ class UpdateProfileScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (context) => sl<UserBloc>()..add(LoadUserProfile()),
-      child: const PersonalInformationView(),
-    );
+    return const PersonalInformationView();
   }
 }
 
