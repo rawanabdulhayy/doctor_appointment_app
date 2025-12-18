@@ -23,7 +23,7 @@ class HelperMethods {
     return email.split('@').first;
   }
 
-  static bool parseStatus(dynamic statusValue) {
+  static bool parseTrueStatus(dynamic statusValue) {
     return statusValue == true || statusValue == 'true';
   }
 

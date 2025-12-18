@@ -174,15 +174,13 @@ import '../../../business_logic/state_management/doctor_information_bloc/doctor_
 import '../../../core/app_colors/app_colors.dart';
 import '../../../core/dependency_injection/injection_container.dart';
 import '../../../data/models/doctor_model.dart';
+import '../../widgets/screen_wrapper/three_page_booking_appointment.dart';
 import 'about_dr_tab.dart';
 
 class AboutDoctor extends StatelessWidget {
   final String doctorId;
 
-  const AboutDoctor({
-    super.key,
-    required this.doctorId,
-  });
+  const AboutDoctor({super.key, required this.doctorId});
 
   @override
   Widget build(BuildContext context) {
@@ -225,7 +223,9 @@ class _AboutDoctorContent extends StatelessWidget {
                   const SizedBox(height: 16),
                   ElevatedButton(
                     onPressed: () {
-                      context.read<DoctorBloc>().add(LoadDoctorDetails(doctorId));
+                      context.read<DoctorBloc>().add(
+                        LoadDoctorDetails(doctorId),
+                      );
                     },
                     child: const Text('Retry'),
                   ),
@@ -237,7 +237,7 @@ class _AboutDoctorContent extends StatelessWidget {
 
         if (state is DoctorInfoLoaded) {
           final doctor = state.doctor;
-          return _buildDoctorScreen(doctor);
+          return _buildDoctorScreen(doctor, context);
         }
 
         return Scaffold(
@@ -248,7 +248,7 @@ class _AboutDoctorContent extends StatelessWidget {
     );
   }
 
-  Widget _buildDoctorScreen(Doctor doctor) {
+  Widget _buildDoctorScreen(Doctor doctor, BuildContext context) {
     return DefaultTabController(
       length: 3,
       child: Scaffold(
@@ -268,8 +268,8 @@ class _AboutDoctorContent extends StatelessWidget {
                 borderRadius: BorderRadius.circular(10),
               ),
               child: IconButton(
-                  onPressed: () {},
-                  icon: const Icon(Icons.more_horiz)
+                onPressed: () {},
+                icon: const Icon(Icons.more_horiz),
               ),
             ),
           ],
@@ -311,11 +311,17 @@ class _AboutDoctorContent extends StatelessWidget {
                         ),
                         Row(
                           children: [
-                            const Icon(Icons.star, color: Colors.amber, size: 16),
+                            const Icon(
+                              Icons.star,
+                              color: Colors.amber,
+                              size: 16,
+                            ),
                             const SizedBox(width: 4),
                             Text(
                               doctor.rating.toStringAsFixed(1),
-                              style: const TextStyle(fontWeight: FontWeight.w600),
+                              style: const TextStyle(
+                                fontWeight: FontWeight.w600,
+                              ),
                             ),
                             const SizedBox(width: 4),
                             Text(
@@ -348,7 +354,9 @@ class _AboutDoctorContent extends StatelessWidget {
                 indicatorSize: TabBarIndicatorSize.tab,
                 labelColor: AppColors.boldPrimaryColor,
                 labelStyle: const TextStyle(fontWeight: FontWeight.w700),
-                unselectedLabelStyle: const TextStyle(fontWeight: FontWeight.w700),
+                unselectedLabelStyle: const TextStyle(
+                  fontWeight: FontWeight.w700,
+                ),
                 unselectedLabelColor: const Color.fromRGBO(158, 158, 158, 1),
                 dividerColor: const Color.fromRGBO(237, 237, 237, 2),
                 tabs: const [
@@ -379,7 +387,15 @@ class _AboutDoctorContent extends StatelessWidget {
                       borderRadius: BorderRadius.circular(16),
                     ),
                   ),
-                  onPressed: () {},
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) =>
+                            ThreePageBookingAppointment(doctor: doctor),
+                      ),
+                    );
+                  },
                   child: Text("Make an Appointment - \$${doctor.appointPrice}"),
                 ),
               ),

@@ -42,6 +42,15 @@ class UpdateCreditCardEvent extends BookingEvent {
   List<Object?> get props => [creditCardType];
 }
 
+class LoadAvailableSlotsEvent extends BookingEvent {
+  final DateTime date;
+
+  LoadAvailableSlotsEvent(this.date);
+
+  @override
+  List<Object?> get props => [date];
+}
+
 class SubmitBookingEvent extends BookingEvent {}
 
 //what's being passed inside the event, is the one variable that should be passed in order to trigger the event.

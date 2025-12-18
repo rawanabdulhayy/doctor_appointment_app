@@ -119,11 +119,13 @@ class AuthResponse {
   });
 
   factory AuthResponse.fromJson(Map<String, dynamic> json) {
+    // Dio typically returns response.data as Map<String, dynamic> for JSON
+
     try {
       print('AuthResponse raw JSON: $json');
 
-      // Extract common fields safely
-      final bool status = HelperMethods.parseStatus(json['status']);
+      // Extract fields safely
+      final bool status = HelperMethods.parseTrueStatus(json['status']);
       final int code = HelperMethods.parseInt(json['code']);
       final String message = json['message']?.toString() ?? '';
       final dynamic data = json['data'];
