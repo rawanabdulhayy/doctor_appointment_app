@@ -1,4 +1,5 @@
 import 'package:doctor_appointment_app/core/app_colors/app_colors.dart';
+import 'package:doctor_appointment_app/presentation/screens/about_doctor/about_doctor.dart';
 import 'package:doctor_appointment_app/presentation/screens/recommendation_doctor.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -246,6 +247,22 @@ class _HomePageState extends State<HomePage> {
                         icon: "assets/images/home_page/kidneys.png",
                         specialityType: "Radiology",
                       ),
+                      SpecialityCard(
+                        icon: "assets/images/home_page/dr_icon.png",
+                        specialityType: "General",
+                      ),
+                      SpecialityCard(
+                        icon: "assets/images/home_page/brain.png",
+                        specialityType: "Neurologic",
+                      ),
+                      SpecialityCard(
+                        icon: "assets/images/home_page/baby.png",
+                        specialityType: "Pediatric",
+                      ),
+                      SpecialityCard(
+                        icon: "assets/images/home_page/kidneys.png",
+                        specialityType: "Radiology",
+                      ),
                     ],
                   ),
                 ),
@@ -354,13 +371,18 @@ class _HomePageState extends State<HomePage> {
                         itemBuilder: (context, index) {
                           final doctor = state.allDoctors[index];
 
-                          return DoctorCard(
-                            image: doctor.photo,
-                            name: doctor.name,
-                            speciality: doctor.speciality,
-                            rating: doctor.rating,
-                            reviewsNumber: 120,
-                            university: doctor.university,
+                          return GestureDetector(
+                            onTap: (){
+                              Navigator.push(context, MaterialPageRoute(builder: (_){return AboutDoctor(doctorId: doctor.id.toString());}));
+                            },
+                            child: DoctorCard(
+                              image: doctor.photo,
+                              name: doctor.name,
+                              speciality: doctor.speciality,
+                              rating: doctor.rating,
+                              reviewsNumber: 120,
+                              university: doctor.university,
+                            ),
                           );
                         },
                       );

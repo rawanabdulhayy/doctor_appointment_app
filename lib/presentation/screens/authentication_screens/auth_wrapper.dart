@@ -53,9 +53,11 @@ class AuthWrapper extends StatelessWidget {
       },
       builder: (context, state) {
         // if (state is AuthLoading) {
-        //   // return SplashScreen(); // or Scaffold with loading
-        //   return CircularProgressIndicator();
+        //   return SplashScreen(); // or Scaffold with loading
         // }
+        if (state is AuthSuccess) {
+          return MainNavigationScreen();
+        }
         if (state is AuthSuccess) {
           return MainNavigationScreen();
         }
