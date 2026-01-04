@@ -58,9 +58,6 @@ class AuthWrapper extends StatelessWidget {
         if (state is AuthSuccess) {
           return MainNavigationScreen();
         }
-        if (state is AuthSuccess) {
-          return MainNavigationScreen();
-        }
         // Handle different auth screens based on state
         Widget screen;
 

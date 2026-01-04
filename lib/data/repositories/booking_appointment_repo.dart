@@ -117,7 +117,7 @@ class BookingRepositoryImpl implements BookingRepositoryInterface {
         '$baseUrl/appointment/store',
         data: {
           'doctor_id': doctorId,
-          'start_time': startTime, // Send the full formatted string
+          'start_time': startTime,
         },
         options: Options(
           headers: {
